@@ -1,0 +1,11 @@
+source 'https://rubygems.org'
+
+gem 'berkshelf', '= 3.1.2'
+gem 'chefspec', '= 3.4.0'
+gem 'foodcritic', '= 3.0.3'
+gem 'kitchen-vagrant', '= 0.15.0'
+gem 'kitchen-gce', '= 0.1.2'
+gem 'kitchen-ec2', '= 0.8.0'
+gem 'rake', '= 10.3.1'
+gem 'rubocop', '= 0.21.0'
+gem 'test-kitchen', '= 1.2.1'

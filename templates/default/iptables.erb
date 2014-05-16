@@ -1,0 +1,7 @@
+<% if node[:aem][:dispatcher][:allow_connections] %>
+  <% node[:aem][:dispatcher][:allow_connections].each do |subnet| %>
+-A FWR -p TCP --dport 80 -s <%= subnet %> -j ACCEPT
+  <% end %>
+<% else %>
+-A FWR -p TCP --dport 80 -j ACCEPT
+<% end %>

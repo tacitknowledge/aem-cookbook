@@ -1,0 +1,183 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: '2048'
+
+provisioner:
+  name: chef_zero
+
+platforms:
+  - name: centos-6.5
+
+suites:
+  - name: author-5.6.1-oraclejdk7
+    driver:
+      customize:
+        memory: '2048'
+    run_list:
+      - recipe[aem::author]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.6.1'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_561'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_561'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '7'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: publish-5.6.1-oraclejdk7
+    driver:
+      customize:
+        memory: '2048'
+    run_list:
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.6.1'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_561'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_561'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '7'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: author-publish-5.6.1-oraclejdk7
+    driver:
+      customize:
+        memory: '4096'
+    run_list:
+      - recipe[aem::author]
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.6.1'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_561'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_561'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '7'
+        oracle:
+          accept_oracle_download_terms: true
+
+
+  - name: author-5.6.0-oraclejdk6
+    driver:
+      customize:
+        memory: '2048'
+    run_list:
+      - recipe[aem::author]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.6.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_560'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_560'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '6'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: publish-5.6.0-oraclejdk6
+    driver:
+      customize:
+        memory: '2048'
+    run_list:
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.6.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_560'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_560'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '6'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: author-publish-5.6.0-oraclejdk6
+    driver:
+      customize:
+        memory: '4096'
+    run_list:
+      - recipe[aem::author]
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.6.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_560'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_560'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '6'
+        oracle:
+          accept_oracle_download_terms: true
+
+
+  - name: author-5.5.0-oraclejdk6
+    driver:
+      customize:
+        memory: '2048'
+    run_list:
+      - recipe[aem::author]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.5.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_550'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_550'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '6'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: publish-5.5.0-oraclejdk6
+    driver:
+      customize:
+        memory: '2048'
+    run_list:
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.5.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_550'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_550'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '6'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: author-publish-5.5.0-oraclejdk6
+    driver:
+      customize:
+        memory: '4096'
+    run_list:
+      - recipe[aem::author]
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
+        version: '5.5.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_550'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_550'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '6'
+        oracle:
+          accept_oracle_download_terms: true
+
+
+  - name: dispatcher
+    run_list:
+      - recipe[aem::dispatcher]
+    attributes:
+      aem:
+        dispatcher:
+          mod_dispatcher_url: <%= ENV['AEM_DISPATCHER_URL'] %>
+          version: '4.1.0'
