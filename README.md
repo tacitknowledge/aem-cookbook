@@ -1,6 +1,6 @@
 # aem-cookbook
 
-TODO: Finish the cookbook description.
+This cookbook installs and configures [Adobe Experience Manager (AEM)](http://www.adobe.com/solutions/web-experience-management.html). (NOTE: CQ versions 5.4 and 5.5 should work as well -- CQ was renamed to AEM as of version 5.6). Included are recipes to install an author or publish instance as well as the dispatcher module for Apache HTTP server.
 
 ## Supported Platforms
 
