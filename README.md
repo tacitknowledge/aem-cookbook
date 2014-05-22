@@ -33,6 +33,18 @@ This cookbook installs and configures [Adobe Experience Manager (AEM)](http://ww
     <td>URL to AEM license file</td>
     <td><tt>nil</tt></td>
   </tr>
+  <tr>
+    <td><tt>['aem']['dispatcher']['mod_dispatcher_url']</tt></td>
+    <td>String</td>
+    <td>URL to AEM dispatcher (.tar.gz or .so)</td>
+    <td><tt>nil</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['aem']['dispatcher']['version']</tt></td>
+    <td>String</td>
+    <td>dispatcher module version</td>
+    <td><tt>nil</tt></td>
+  </tr>
 </table>
 
 ## Usage
@@ -57,6 +69,18 @@ Include `aem::publish` in your node's `run_list`:
 {
   "run_list": [
     "recipe[aem::publish]"
+  ]
+}
+```
+
+### aem::dispatcher
+
+Include `aem::dispatcher` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[aem::dispatcher]"
   ]
 }
 ```
