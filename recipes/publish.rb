@@ -51,6 +51,7 @@ end
 service "aem-publish" do
   #init script returns 0 for status no matter what
   status_command "service aem-publish status | grep running"
+  supports :status => true, :stop => true, :start => true, :restart => true
   action [:enable, :start]
 end
 

@@ -11,6 +11,65 @@ platforms:
   - name: centos-6.5
 
 suites:
+  - name: author-6.0.0-oraclejdk7
+    driver:
+      customize:
+        memory: '2560'
+    run_list:
+      - recipe[aem::author]
+    attributes:
+      aem:
+        version: '6.0.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_600'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_600'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '7'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: publish-6.0.0-oraclejdk7
+    driver:
+      customize:
+        memory: '2560'
+    run_list:
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        version: '6.0.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_600'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_600'] %>
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '7'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: author-publish-6.0.0-oraclejdk7
+    driver:
+      customize:
+        memory: '5120'
+    run_list:
+      - recipe[aem::author]
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        version: '6.0.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_600'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_600'] %>
+        author:
+          startup:
+            max_attempts: 40
+            wait_between_attempts: 30
+        publish:
+          startup:
+            max_attempts: 40
+            wait_between_attempts: 30
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '7'
+        oracle:
+          accept_oracle_download_terms: true
+
+
   - name: author-5.6.1-oraclejdk7
     driver:
       customize:
@@ -19,7 +78,6 @@ suites:
       - recipe[aem::author]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.6.1'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_561'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_561'] %>
@@ -36,7 +94,6 @@ suites:
       - recipe[aem::publish]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.6.1'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_561'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_561'] %>
@@ -54,7 +111,6 @@ suites:
       - recipe[aem::publish]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.6.1'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_561'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_561'] %>
@@ -73,7 +129,6 @@ suites:
       - recipe[aem::author]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.6.0'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_560'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_560'] %>
@@ -90,7 +145,6 @@ suites:
       - recipe[aem::publish]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.6.0'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_560'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_560'] %>
@@ -108,7 +162,6 @@ suites:
       - recipe[aem::publish]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.6.0'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_560'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_560'] %>
@@ -127,7 +180,6 @@ suites:
       - recipe[aem::author]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.5.0'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_550'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_550'] %>
@@ -144,7 +196,6 @@ suites:
       - recipe[aem::publish]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.5.0'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_550'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_550'] %>
@@ -162,7 +213,6 @@ suites:
       - recipe[aem::publish]
     attributes:
       aem:
-        # TODO: can we get rid of the need for the version variable, and infer that from the URL instead?
         version: '5.5.0'
         download_url: <%= ENV['AEM_DOWNLOAD_URL_550'] %>
         license_url: <%= ENV['AEM_LICENSE_URL_550'] %>
