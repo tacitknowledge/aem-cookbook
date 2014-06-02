@@ -6,6 +6,13 @@ This cookbook installs and configures [Adobe Experience Manager (AEM)](http://ww
 
 * CentOS
 
+## Supported Versions
+
+* AEM 6.0.0
+* AEM 5.6.1
+* AEM 5.6.0
+* CQ 5.5.0
+
 ## Attributes
 
 <table>

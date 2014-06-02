@@ -554,13 +554,16 @@ server=y,suspend=${CQ_JVM_DEBUG_SUSPENDED}"
     fi;
 
     COUNTER=0
-    while ps -p $cqpid > /dev/null 2>&1 && [ $COUNTER -lt 60 ]; do
+    # AEM6 takes a very long time to stop after the first run. Subsequent stops are usually much quicker.
+    TIMEOUT_SECONDS=300
+    while ps -p $cqpid > /dev/null 2>&1 && [ $COUNTER -lt ${TIMEOUT_SECONDS} ]; do
         printf "."
         COUNTER=`expr $COUNTER + 1`
         sleep 2
     done
     if ps -p $cqpid > /dev/null 2>&1; then
         echo "Process $cqpid still running, unable to stop"
+        exit 20
     else
         echo "stopped."
         rm -f "$CQ_LOGDIR/cq.pid"
