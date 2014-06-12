@@ -13,6 +13,14 @@ This cookbook installs and configures [Adobe Experience Manager (AEM)](http://ww
 * AEM 5.6.0
 * CQ 5.5.0
 
+## Featured Functionality
+
+* Unattended installation of aem author, publish, and dispatcher nodes.
+* Automatically search for and configure aem cluster members (dispatcher, author, publish) using chef searches.
+* Configure replication agents using the replicator provider.
+* Configure dispatcher farms with the farm provider.
+* Deploy and remove aem packages with the package provider (recommended for development purposes only).
+
 ## Attributes
 
 <table>
