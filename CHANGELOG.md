@@ -1,7 +1,7 @@
 # 1.0.2
 
 * Fixes
-  * #7 - Update jar_installer provider to significantly reduce memory utilization.
+  * [#7](https://github.com/tacitknowledge/aem-cookbook/pull/7) Update jar_installer provider to significantly reduce memory utilization.
 
 # 1.0.1
 
