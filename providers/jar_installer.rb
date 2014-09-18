@@ -48,9 +48,10 @@ action :install do
   end
   r.run_action(:create_if_missing)
 
-  file "#{vars[:base_dir]}/#{service_name}/#{jar_name}" do
-    content IO.read("#{Chef::Config[:file_cache_path]}/#{remote_jar_name}")
+  remote_file "#{vars[:base_dir]}/#{service_name}/#{jar_name}" do
+    source "file://#{Chef::Config[:file_cache_path]}/#{remote_jar_name}"
     mode "0755"
+    action :create_if_missing
   end
 
   bash "unpack jar" do
