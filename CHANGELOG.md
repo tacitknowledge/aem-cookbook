@@ -1,7 +1,7 @@
 # 1.0.3
 
 * Enhancements
-  * [#8](https://github.com/tacitknowledge/aem-cookbook/pull/8) Updated build dependencies.
+  * [#9](https://github.com/tacitknowledge/aem-cookbook/pull/9) Updated build dependencies.
 
 # 1.0.2
 
