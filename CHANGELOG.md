@@ -1,3 +1,8 @@
+# 1.0.3
+
+* Enhancements
+  * [#8](https://github.com/tacitknowledge/aem-cookbook/pull/8) Updated build dependencies.
+
 # 1.0.2
 
 * Fixes
@@ -6,7 +11,7 @@
 # 1.0.1
 
 * Enhancements
-  * Added support for AEM 6.0.0.
+  * [#4](https://github.com/tacitknowledge/aem-cookbook/pull/4) Added support for AEM 6.0.0.
 
 # 1.0.0
 
