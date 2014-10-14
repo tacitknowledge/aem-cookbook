@@ -9,11 +9,11 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "aem-berkshelf"
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "Berkshelf-CentOS-6.3-x86_64-minimal"
+  config.vm.box = "opscode-centos-6.5"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "https://dl.dropbox.com/u/31081437/Berkshelf-CentOS-6.3-x86_64-minimal.box"
+  config.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.5_chef-provisionerless.box"
 
   # Assign this VM to a host-only network IP, allowing you to access it
   # via the IP. Host-only networks can talk to the host machine as well as
@@ -52,11 +52,8 @@ Vagrant.configure("2") do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
-  config.ssh.max_tries = 40
-  config.ssh.timeout   = 120
-
   # The path to the Berksfile to use with Vagrant Berkshelf
-  # config.berkshelf.berksfile_path = "./Berksfile"
+  #config.berkshelf.berksfile_path = "./Berksfile"
 
   # Enabling the Berkshelf plugin. To enable this globally, add this configuration
   # option to your ~/.vagrant.d/Vagrantfile file
@@ -69,6 +66,9 @@ Vagrant.configure("2") do |config|
   # An array of symbols representing groups of cookbook described in the Vagrantfile
   # to skip installing and copying to Vagrant's shelf.
   # config.berkshelf.except = []
+  
+  #Enabling the Omnibus plugin.
+  config.omnibus.chef_version = :latest
 
   config.vm.provision :chef_solo do |chef|
     chef.json = {
@@ -80,7 +80,7 @@ Vagrant.configure("2") do |config|
     }
 
     chef.run_list = [
-        "recipe[aem::default]"
+        "recipe[aem::author]"
     ]
   end
 end
