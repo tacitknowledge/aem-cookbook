@@ -18,16 +18,14 @@
 
 # This resource manages an AEM JCR node
 
-chef_gem 'curb'
-require 'curb'
-
 actions :create, :delete
 default_action :create
 
 attribute :name, :kind_of => String, :name_attribute => true
 attribute :path, :kind_of => String, :required => true
+attribute :type, :kind_of => String, :default => nil
 attribute :contents, :kind_of => String, :required => true
 attribute :host, :kind_of => String, :required => true
 attribute :port, :kind_of => String, :required => true
-attribure :user, :kind_of => String, :required => true
-attribure :password, :kind_of => String, :required => true
+attribute :user, :kind_of => String, :required => true
+attribute :password, :kind_of => String, :required => true

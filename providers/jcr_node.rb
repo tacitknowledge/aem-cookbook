@@ -18,7 +18,7 @@
 
 # This provider manages an AEM JCR node
 
-def curl(url, user, password) do
+def curl(url, user, password)
   c = Curl::Easy.new(url)
   c.http_auth_types = :basic
   c.username = user
@@ -27,7 +27,17 @@ def curl(url, user, password) do
   c
 end
 
-def check_node(url, user, password) do
+def curl_form(url, user, password, fields)
+  c = Curl::Easy.http_post(url, *fields)
+  c.http_auth_types = :basic
+  c.username = user
+  c.password = password
+  c.multipart_form_post = true
+  c.perform
+  c
+end
+
+def check_node(url, user, password)
   c = curl(url, user, password)
   case c.response_code
   when 200
@@ -45,10 +55,36 @@ end
 
 action :create do
   url = make_url(new_resource)
-  unless check_node(url, new_resource.user, new_resource.password) == new_resource.content
-
+  # How to create the node depends on the type.  I'm only supporting type 'file' right now.
+  case new_resource.type
+  when 'file'
+    unless check_node(url, new_resource.user, new_resource.password) == new_resource.contents
+      fields = [
+        Curl::PostField.file(new_resource.name, new_resource.contents),
+        Curl::PostField.content("#{new_resource.name}@TypeHint", "Binary")
+      ]
+      c = curl_form(url, new_resource.user, new_resource.password, fields)
+      if c.response_code == 200
+        new_resource.updated_by_last_action(true)
+      else
+        raise "JCR Node Creation failed.  HTTP code: #{c.response_code}"
+      end
+    end
+  else
+    raise "Node type '#{new_resource.type}' is unsupported for creation.  If you need this type, please file an issue, or better yet, a pull request."
   end
 end
 
 action :delete do
+  url = make_url(new_resource)
+  if check_node(url, new_resource.user, new_resource.password)
+    # If the node exists, delete it
+    fields = [ Curl::PostField.content(":operation", "delete") ]
+    c = curl_form(url, new_resource.user, new_resource.password, fields)
+    if c.response_code == 200
+      new_resource.updated_by_last_action(true)
+    else
+      raise "JCR Node Deletion failed.  HTTP code: #{c.response_code}"
+    end
+  end
 end
