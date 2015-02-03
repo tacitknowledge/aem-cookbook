@@ -1,3 +1,13 @@
+# 1.1.1
+
+* Fixes
+  * Updated changelog.
+
+# 1.1.0
+
+* Enhancements
+  * [#13](https://github.com/tacitknowledge/aem-cookbook/pull/13) Added aem_jcr_node provider.
+
 # 1.0.3
 
 * Enhancements
