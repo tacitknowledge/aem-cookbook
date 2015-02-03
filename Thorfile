@@ -76,4 +76,16 @@ class Default < Thor
 
     ThorSCMVersion::Tasks.new.bump('patch')
   end
+
+  desc 'minor', 'bump minor version number'
+  def minor
+    # Make sure that the VERSION file exists and is accurate.
+    ThorSCMVersion::Tasks.new.current
+
+    # invoke :foodcritic
+    # invoke :rubocop
+    # invoke :kitchen
+
+    ThorSCMVersion::Tasks.new.bump('minor')
+  end
 end
