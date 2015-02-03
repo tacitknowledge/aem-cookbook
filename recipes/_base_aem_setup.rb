@@ -16,6 +16,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# We need these for the jcr_node provider
+package 'libcurl-devel' do
+  action :nothing
+end.run_action(:install)
+
+package 'gcc' do
+  action :nothing
+end.run_action(:install)
+
+chef_gem 'curb' do
+  action :nothing
+end.run_action(:install)
+
+require 'curb'
+
 unless node['aem']['license_url']
   Chef::Application.fatal! 'aem.license_url attribute cannot be nil. Please populate that attribute.'
 end
