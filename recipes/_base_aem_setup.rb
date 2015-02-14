@@ -31,6 +31,9 @@ end
 
 include_recipe "java"
 package "unzip"
+chef_gem "nokogiri"
+r = chef_gem "activesupport"
+r.run_action(:install)
 
 if node[:aem][:use_yum] then
   package 'aem' do

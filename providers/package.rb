@@ -20,173 +20,142 @@
 # though it can be useful for standing-up developer environments.  If you
 # really want to use this for production, you should add some real error
 # checking on the output of the curl commands.
+require 'time'
+require 'open-uri'
+require 'nokogiri'
+require 'active_support/core_ext/hash/conversions'
 
-def set_vars
-  #Set up vars with AEM package manager urls, etc.
-  vars = {}
-  vars[:recursive] = new_resource.recursive ? '\\&recursive=true' : ""
-  vars[:file_name] = "#{new_resource.name}-#{new_resource.version}" +
-                     "#{new_resource.file_extension}"
-  vars[:download_url] = new_resource.package_url
-  vars[:file_path] = "#{Chef::Config[:file_cache_path]}/#{vars[:file_name]}"
-  vars[:user] = new_resource.user
-  vars[:password] = new_resource.password
-  vars[:port] = new_resource.port
-  vars[:group_id] = new_resource.group_id
-  vars[:upload_cmd] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} -F" +
-                      " package=@#{vars[:file_path]} http://localhost:" +
-                      "#{vars[:port]}/crx/packmgr/service/.json?cmd=upload"
-  vars[:delete_cmd] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} -X" +
-                      " POST http://localhost:#{vars[:port]}/crx/packmgr/" +
-                      "service/.json/etc/packages/#{vars[:group_id]}/" +
-                      "#{vars[:file_name]}?cmd=delete"
-  vars[:install_cmd] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} -X" +
-                       " POST http://localhost:#{vars[:port]}/crx/packmgr/" +
-                       "service/.json/etc/packages/#{vars[:group_id]}/" +
-                       "#{vars[:file_name]}?cmd=install#{vars[:recursive]}"
-  vars[:activate_cmd] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} -X" +
-                       " POST http://localhost:#{vars[:port]}/crx/packmgr/" +
-                       "service/.json/etc/packages/#{vars[:group_id]}/" +
-                       "#{vars[:file_name]}?cmd=replicate"
-  vars[:uninstall_cmd] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} -X" +
-                       " POST http://localhost:#{vars[:port]}/crx/packmgr/" +
-                       "service/.json/etc/packages/#{vars[:group_id]}/" +
-                       "#{vars[:file_name]}?cmd=uninstall"
-
-  vars
+# Queries AEM. Returns an array of all packages matching the package_name
+# Each element within the array is a Hash representing an individual package.
+# Example package Hash below:
+# [{
+#   "group"=>"com.xxx.aem",
+#   "name"=>"aem-deployment",
+#   "version"=>"1.2.3",
+#   "downloadname"=>"aem-deployment-1.2.2.zip",
+#   "size"=>"9166080",
+#   "created"=>"Thu, 12 Feb 2015 16:41:49 +0000",
+#   "createdby"=>"admin",
+#   "lastmodified"=>nil,
+#   "lastmodifiedby"=>"null",
+#   "lastunpacked"=>"Fri, 13 Feb 2015 21:51:13 +0000",
+#   "lastunpackedby"=>"admin"
+# }]
+def get_current_packages package_name
+  uri = "http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/service.jsp?cmd=ls"
+  page = Nokogiri::HTML(open( uri, :http_basic_authentication => [new_resource.user, new_resource.password] ))
+  response_code = page.xpath("//response/status/@code")
+  raise "Invalid response (#{response_code}) while listing packages from #{uri}." unless response_code.to_s == "200"
+  @packages = page.xpath("//response/data/packages/package[name='#{package_name}']")
+  @packages.map {|p| Hash.from_xml(p.to_s)['package']}
 end
 
-def get_package_version zip_file_path, properties_file_path, pattern
-  # The package versions inside the zip file may have no relationship to the
-  # version on the file.
-  cmd = "unzip -p #{zip_file_path} #{properties_file_path}"
-  get_version = Mixlib::ShellOut.new(cmd)
-  get_version.run_command
-  get_version.error!
-  puts "PROPERTIES FILE:\n #{get_version.stdout}"
-  puts "PATTERN: #{pattern}"
-  match = pattern.match(get_version.stdout)
-  raise "Failed to find AEM package version in #{zip_file_path}." unless match
-  puts "Found AEM package version: #{match[1]}"
-  # return the captured text
-  match[1]
+# If we're using something like "latest", the version within the package (number) may not
+# match the version passed to the resource (latest), so we need to get the real (number) version.
+def get_package_version
+  if new_resource.properties_file && new_resource.version_pattern
+    pattern = Regexp.new(new_resource.version_pattern)
+    cmd = "unzip -p #{new_resource.file_path} #{new_resource.properties_file}"
+    get_version = Mixlib::ShellOut.new(cmd)
+    get_version.run_command
+    get_version.error!
+    match = pattern.match(get_version.stdout)
+    raise "Failed to find AEM package version in #{new_resource.file_path}." unless match
+    log "#{Time.now.iso8601(3)}: Found AEM version '#{match[1]}' in package '#{new_resource.file_path}'" do
+      level :debug
+    end
+    return match[1]
+  end
+  new_resource.version
+end
+
+# TODO: Use a ruby HTTP Client library for making HTTP calls instead of curl
+def run_cmd(cmd, cmd_action)
+  shell = Mixlib::ShellOut.new(cmd)
+  log "#{Time.now.iso8601(3)}: Running '#{cmd_action}' AEM package with command: #{cmd}"
+  shell.run_command
+  shell.error!
+  log "#{Time.now.iso8601(3)}: #{shell.stdout}"
+end
+
+def delete_package(file_name)
+  delete_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
+      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
+      "service/.json/etc/packages/#{new_resource.group_id}/" +
+      "#{file_name}?cmd=delete"
+  run_cmd(delete_cmd, 'Delete')
+end
+
+def upload_package(file_path)
+  upload_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -F" +
+      " package=@#{file_path} http://#{new_resource.aem_host}:" +
+      "#{new_resource.port}/crx/packmgr/service/.json?cmd=upload"
+  run_cmd(upload_cmd, 'Upload')
+end
+
+def install_package(file_name)
+  recursive = new_resource.recursive ? '\\&recursive=true' : ""
+  install_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
+      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
+      "service/.json/etc/packages/#{new_resource.group_id}/" +
+      "#{file_name}?cmd=install#{recursive}"
+  run_cmd(install_cmd, 'Install')
+end
+
+def activate_package(file_name)
+  activate_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
+      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
+      "service/.json/etc/packages/#{new_resource.group_id}/" +
+      "#{file_name}?cmd=replicate"
+  run_cmd(activate_cmd, 'Activate')
+end
+
+def uninstall_package(file_name)
+  uninstall_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
+      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
+      "service/.json/etc/packages/#{new_resource.group_id}/" +
+      "#{file_name}?cmd=uninstall"
+  run_cmd(uninstall_cmd, 'Uninstall')
 end
 
 action :upload do
-  #I only wish there was a way to get AEM to tell you what packages are already
-  #  installed.  The Hack follows.
-
-  vars = set_vars()
-  unless (::File.exists?(vars[:file_path]) && ! new_resource.update)
-    r = remote_file vars[:file_path] do
-      source vars[:download_url]
-      mode 0755
-      action :nothing
-    end
-    r.run_action(:create)
-
-    #If we're going to do the upload, make sure the package is not already there
-    delete = Mixlib::ShellOut.new(vars[:delete_cmd])
-    upload = Mixlib::ShellOut.new(vars[:upload_cmd])
-    log "Deleting AEM package with command: #{vars[:delete_cmd]}"
-    delete.run_command
-    delete.error!
-    log delete.stdout
-    log "Uploading AEM package with command: #{vars[:upload_cmd]}"
-    upload.run_command
-    upload.error!
-    log upload.stdout
-
+  r = remote_file new_resource.file_path do
+    source new_resource.package_url
+    mode 0755
+    action :nothing
   end
+  r.run_action(:create)
+  package_version = get_package_version
+  # Delete all existing packages of the same name not matching current package version
+  @uploaded_packages = get_current_packages(new_resource.name)
+  @uploaded_packages.each do |uploaded_package|
+    delete_package(uploaded_package['downloadname']) unless uploaded_package['version'] == package_version
+  end
+  # Upload this package unless it's already uploaded
+  upload_package(new_resource.file_path) unless @uploaded_packages.any? { |uploaded_package| uploaded_package['version'] == package_version }
 end
 
 action :delete do
-  vars = set_vars()
-  delete = Mixlib::ShellOut.new(vars[:delete_cmd])
-  log "Deleting AEM package with command: #{vars[:delete_cmd]}"
-  delete.run_command
-  delete.error!
-  log delete.stdout
-  file vars[:file_path] do
+  delete_package(new_resource.file_name)
+  file new_resource.file_path do
     action :delete
   end
 end
 
 action :install do
-  vars = set_vars()
-
-  # If we're using something like "latest", the version of the packages won't
-  # match, so we need to get the real version.
-  if new_resource.properties_file && new_resource.version_pattern
-    pat = Regexp.new(new_resource.version_pattern)
-    package_version = get_package_version( vars[:file_path],
-      new_resource.properties_file, pat )
-    vars[:install_cmd].sub!( new_resource.version, package_version )
-    puts "NEW VERSION: #{package_version}"
+  package_version = get_package_version
+  @uploaded_packages = get_current_packages(new_resource.name)
+  # Uninstall all existing packages that do not match current package version
+  @uploaded_packages.each do |uploaded_package|
+    delete_package(uploaded_package['downloadname']) unless uploaded_package['version'] == package_version
   end
-
-  puts "INSTALL COMMAND: #{vars[:install_cmd]}"
-  install = Mixlib::ShellOut.new(vars[:install_cmd])
-
-  #We need to figure out what version is currently installed, if any.
-  # AEM won't tell us this, so we leave ourselves breadcrumbs.
-  version_dir = "#{node[:aem][new_resource.aem_instance][:default_context]}/" +
-                 "packages"
-  version_file = "#{version_dir}/#{new_resource.name}"
-  current_version = nil
-  if ::File.exists?(version_file) then
-    current_version = ::File.readlines(version_file).last.chomp
-  end
-  #Need to uninstall the current version - AEM just overlays a new install
-  if (current_version != new_resource.version) || new_resource.update then
-    old = "#{new_resource.name}-#{current_version}#{new_resource.file_extension}"
-    uninstall_cmd = vars[:uninstall_cmd].sub( vars[:file_name], old )
-    uninstall = Mixlib::ShellOut.new(uninstall_cmd)
-    log "Uninstalling AEM package with command: #{uninstall_cmd}"
-    uninstall.run_command
-    uninstall.error!
-    log uninstall.stdout
-    log "Installing AEM package with command: #{vars[:install_cmd]}"
-    install.run_command
-    install.error!
-    log install.stdout
-  end
-  #Now to leave the breadcrumb
-  params = { :version => new_resource.version }
-  directory version_dir do
-    owner "root"
-    group "root"
-    mode "0755"
-  end
-  template version_file do
-    owner "root"
-    group "root"
-    mode "0644"
-    source "aem_pkg_version.erb"
-    variables( :params => params )
-  end
+  install_package(new_resource.file_name) unless @uploaded_packages.any? { |uploaded_package| uploaded_package['version'] == package_version && uploaded_package['lastunpacked'] != nil }
 end
 
 action :activate do
-  vars = set_vars()
-  if new_resource.properties_file && new_resource.version_pattern
-    pat = Regexp.new(new_resource.version_pattern)
-    package_version = get_package_version( vars[:file_path],
-      new_resource.properties_file, pat )
-    vars[:activate_cmd].sub!( new_resource.version, package_version )
-  end
-  activate = Mixlib::ShellOut.new(vars[:activate_cmd])
-  log "Activating AEM package with command: #{vars[:activate_cmd]}"
-  activate.run_command
-  activate.error!
-  log activate.stdout
+  activate_package(new_resource.file_name)
 end
 
 action :uninstall do
-  vars = set_vars()
-  uninstall = Mixlib::ShellOut.new(vars[:uninstall_cmd])
-  log "Uninstalling AEM package with command: #{vars[:uninstall_cmd]}"
-  uninstall.run_command
-  uninstall.error!
-  log uninstall.stdout
+  uninstall_package(new_resource.file_name)
 end
