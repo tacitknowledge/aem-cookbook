@@ -23,9 +23,6 @@
 require 'time'
 require 'json'
 require 'rest_client'
-require 'open-uri'
-require 'nokogiri'
-require 'active_support/core_ext/hash/conversions'
 
 # Queries AEM. Returns an array of all packages matching the package_name
 # Each element within the array is a Hash representing an individual package.
@@ -44,6 +41,9 @@ require 'active_support/core_ext/hash/conversions'
 #   "lastunpackedby"=>"admin"
 # }]
 def get_current_packages package_name
+  require 'nokogiri'
+  require 'open-uri'
+  require 'active_support/core_ext/hash/conversions'
   uri = "http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/service.jsp?cmd=ls"
   page = Nokogiri::HTML(open( uri, :http_basic_authentication => [new_resource.user, new_resource.password] ))
   response_code = page.xpath("//response/status/@code")
