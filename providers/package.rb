@@ -56,6 +56,7 @@ end
 # match the version passed to the resource (latest), so we need to get the real (number) version.
 def get_package_version
   if new_resource.properties_file && new_resource.version_pattern
+    download_package
     pattern = Regexp.new(new_resource.version_pattern)
     cmd = "unzip -p #{new_resource.file_path} #{new_resource.properties_file}"
     get_version = Mixlib::ShellOut.new(cmd)
@@ -75,14 +76,31 @@ def aem_req(overrides={})
   options = {
     :method => :post,
     :user => new_resource.user,
-    :password => new_resource.password
+    :password => new_resource.password,
+    :timeout => new_resource.timeout
   }
   options.merge!(overrides)
   options[:url] = "http://#{new_resource.aem_host}:#{new_resource.port}#{options[:url]}"
-  log "#{Time.now.iso8601(3)}: Modifying package: #{overrides}"
+  log "#{Time.now.iso8601(3)}: Modifying package: #{options[:url]}"
   response = JSON.parse(RestClient::Request.execute(options))
+  log "#{Time.now.iso8601(3)}: Success: #{response['success']}, Message: #{response['msg']}."
   raise "Unsuccessful response from AEM Server: #{response}" unless response['success']
   response
+end
+
+def download_package
+  # Only create new resource if needed (CHEF-3694)
+  begin
+    # Try to lookup the remote file resource
+    run_context.resource_collection.find(:remote_file => new_resource.file_path)
+  rescue Chef::Exceptions::ResourceNotFound
+    # Resource doesn't exist, create now
+    remote_file new_resource.file_path do
+      source new_resource.package_url
+      mode 0755
+      checksum new_resource.checksum
+    end
+  end
 end
 
 def delete_package(file_name)
@@ -110,12 +128,7 @@ def uninstall_package(file_name)
 end
 
 action :upload do
-  r = remote_file new_resource.file_path do
-    source new_resource.package_url
-    mode 0755
-    action :nothing
-  end
-  r.run_action(:create)
+  download_package
   package_version = get_package_version
   # Delete all existing packages of the same name not matching current package version
   @uploaded_packages = get_current_packages(new_resource.name)
@@ -136,7 +149,7 @@ end
 action :install do
   package_version = get_package_version
   @uploaded_packages = get_current_packages(new_resource.name)
-  # Uninstall all existing packages that do not match current package version
+  # Uninstall and delete all existing packages that do not match current package version
   @uploaded_packages.each do |uploaded_package|
     delete_package(uploaded_package['downloadname']) unless uploaded_package['version'] == package_version
   end
