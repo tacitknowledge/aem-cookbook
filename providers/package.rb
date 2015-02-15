@@ -21,6 +21,8 @@
 # really want to use this for production, you should add some real error
 # checking on the output of the curl commands.
 require 'time'
+require 'json'
+require 'rest_client'
 require 'open-uri'
 require 'nokogiri'
 require 'active_support/core_ext/hash/conversions'
@@ -69,53 +71,42 @@ def get_package_version
   new_resource.version
 end
 
-# TODO: Use a ruby HTTP Client library for making HTTP calls instead of curl
-def run_cmd(cmd, cmd_action)
-  shell = Mixlib::ShellOut.new(cmd)
-  log "#{Time.now.iso8601(3)}: Running '#{cmd_action}' AEM package with command: #{cmd}"
-  shell.run_command
-  shell.error!
-  log "#{Time.now.iso8601(3)}: #{shell.stdout}"
+def aem_req(overrides={})
+  options = {
+    :method => :post,
+    :user => new_resource.user,
+    :password => new_resource.password
+  }
+  options.merge!(overrides)
+  options[:url] = "http://#{new_resource.aem_host}:#{new_resource.port}#{options[:url]}"
+  log "#{Time.now.iso8601(3)}: Modifying package: #{overrides}"
+  response = JSON.parse(RestClient::Request.execute(options))
+  raise "Unsuccessful response from AEM Server: #{response}" unless response['success']
+  response
 end
 
 def delete_package(file_name)
-  delete_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
-      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
-      "service/.json/etc/packages/#{new_resource.group_id}/" +
-      "#{file_name}?cmd=delete"
-  run_cmd(delete_cmd, 'Delete')
+  aem_req({:url => "/crx/packmgr/service/.json/etc/packages/#{new_resource.group_id}/#{file_name}?cmd=delete"})
 end
 
 def upload_package(file_path)
-  upload_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -F" +
-      " package=@#{file_path} http://#{new_resource.aem_host}:" +
-      "#{new_resource.port}/crx/packmgr/service/.json?cmd=upload"
-  run_cmd(upload_cmd, 'Upload')
+  aem_req({:url => '/crx/packmgr/service/.json?cmd=upload',
+           :content_type => 'application/octet-stream',
+           :payload => {:multipart => true, :package => ::File.new(file_path, 'rb'), :filename => ::File.basename(file_path)}
+          })
 end
 
 def install_package(file_name)
-  recursive = new_resource.recursive ? '\\&recursive=true' : ""
-  install_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
-      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
-      "service/.json/etc/packages/#{new_resource.group_id}/" +
-      "#{file_name}?cmd=install#{recursive}"
-  run_cmd(install_cmd, 'Install')
+  recursive = new_resource.recursive ? '&recursive=true' : ''
+  aem_req({:url => "/crx/packmgr/service/.json/etc/packages/#{new_resource.group_id}/#{file_name}?cmd=install#{recursive}"})
 end
 
 def activate_package(file_name)
-  activate_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
-      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
-      "service/.json/etc/packages/#{new_resource.group_id}/" +
-      "#{file_name}?cmd=replicate"
-  run_cmd(activate_cmd, 'Activate')
+  aem_req({:url => "/crx/packmgr/service/.json/etc/packages/#{new_resource.group_id}/#{file_name}?cmd=replicate"})
 end
 
 def uninstall_package(file_name)
-  uninstall_cmd = "curl -s -S -u #{new_resource.user}:#{new_resource.password} -X" +
-      " POST http://#{new_resource.aem_host}:#{new_resource.port}/crx/packmgr/" +
-      "service/.json/etc/packages/#{new_resource.group_id}/" +
-      "#{file_name}?cmd=uninstall"
-  run_cmd(uninstall_cmd, 'Uninstall')
+  aem_req({:url => "/crx/packmgr/service/.json/etc/packages/#{new_resource.group_id}/#{file_name}?cmd=uninstall"})
 end
 
 action :upload do
