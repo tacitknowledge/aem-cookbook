@@ -31,7 +31,8 @@ end
 
 include_recipe "java"
 package "unzip"
-chef_gem "nokogiri"
+r = chef_gem "nokogiri"
+r.run_action(:install)
 chef_gem "rest-client"
 r = chef_gem "activesupport"
 r.run_action(:install)
