@@ -95,11 +95,12 @@ def download_package
     run_context.resource_collection.find(:remote_file => new_resource.file_path)
   rescue Chef::Exceptions::ResourceNotFound
     # Resource doesn't exist, create now
-    remote_file new_resource.file_path do
+    r = remote_file new_resource.file_path do
       source new_resource.package_url
       mode 0755
       checksum new_resource.checksum
     end
+    r.run_action(:create)
   end
 end
 
@@ -108,6 +109,7 @@ def delete_package(file_name)
 end
 
 def upload_package(file_path)
+  download_package
   aem_req({:url => '/crx/packmgr/service/.json?cmd=upload',
            :content_type => 'application/octet-stream',
            :payload => {:multipart => true, :package => ::File.new(file_path, 'rb'), :filename => ::File.basename(file_path)}
@@ -128,7 +130,6 @@ def uninstall_package(file_name)
 end
 
 action :upload do
-  download_package
   package_version = get_package_version
   # Delete all existing packages of the same name not matching current package version
   @uploaded_packages = get_current_packages(new_resource.name)
