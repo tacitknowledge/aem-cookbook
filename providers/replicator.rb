@@ -29,17 +29,26 @@ action :add do
   role = new_resource.cluster_role
   cluster_name = new_resource.cluster_name
   type = new_resource.type
+  server = new_resource.server || 'author'
 
   raise "No command specified for replicator type: #{type}. See node attribute :aem->" +
     ":commands->:replicators." unless node[:aem][:commands][:replicators][type][:add]
 
   case type
     when :publish
-      aem_instance = :publish
-    when :flush
+      agent = aem_instance = :publish
+    when :flush 
       aem_instance = :dispatcher
+      agent = 'flush'
+      # these are usually on publishers
+      server = new_resource.server || 'publish'
+    when :flush_agent
+      aem_instance = :dispatcher
+      agent = 'flush'
+      # these are usually on publishers
+      server = new_resource.server || 'publish'
     when :agent
-      aem_instance = :publish
+      agent = aem_instance = :publish
     end
 
   if new_resource.dynamic_cluster
@@ -80,6 +89,7 @@ action :remove do
   role = new_resource.cluster_role
   cluster_name = new_resource.cluster_name
   type = new_resource.type
+  server = new_resource.server || 'author'
 
   raise "No command specified for replicator type: #{type}. See node attribute :aem->" +
     ":commands->:replicators." unless node[:aem][:commands][:replicators][type][:remove]
@@ -88,8 +98,14 @@ action :remove do
     when :publish
       aem_instance = :publish
       agent = "publish"
-    when :flush
+    when :flush 
       aem_instance = :dispatcher
+      agent = 'flush'
+      server = new_resource.server || 'publish'
+    when :flush_agent
+      aem_instance = :dispatcher
+      agent = 'flush'
+      server = new_resource.server || 'publish'
     when :agent
       aem_instance = :publish
       agent = "author"
@@ -110,31 +126,32 @@ action :remove do
     end
     hosts.sort! { |a,b| a[:name] <=> b[:name] }
 
-    if type == :agent
+    if type == :agent || type == :flush_agent
       cmd = ERB.new(node[:aem][:commands][:replicators][type][:list]).result(binding)
-
-      log "Creating list of replication agents wth command: #{cmd}"
+  
+      log "Creating list of agents wth command: #{cmd}"
       runner = Mixlib::ShellOut.new(cmd)
       runner.run_command
       runner.error!
-
+  
       list = JSON.parse(runner.stdout)
       all_agents = []
       list["agents.#{agent}"].keys.each do |key|
         all_agents << key unless key =~ /jcr/
       end
-
+  
       counter = 0
       agents = []
       hosts.each do |h|
         instance = counter > 0 ? counter.to_s : ""
-        agents << "#{aem_instance}#{instance}"
+        agents << "#{agent}#{instance}"
+        counter += 1
       end
-
+  
       hosts = all_agents - agents
     end
-
   end
+
 
   counter = 0
   hosts.each do |h|
