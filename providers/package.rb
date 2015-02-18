@@ -73,6 +73,7 @@ def get_package_version
 end
 
 def aem_req(overrides={})
+  require 'uri'
   options = {
     :method => :post,
     :user => new_resource.user,
@@ -80,10 +81,11 @@ def aem_req(overrides={})
     :timeout => new_resource.timeout
   }
   options.merge!(overrides)
-  options[:url] = "http://#{new_resource.aem_host}:#{new_resource.port}#{options[:url]}"
-  log "#{Time.now.iso8601(3)}: Modifying package: #{options[:url]}"
+  # The URI Path is passed to this method as the 'url' option. We update the url with the protocol, hostname, and port.
+  options[:url] = URI.encode("http://#{new_resource.aem_host}:#{new_resource.port}#{options[:url]}")
+  log "Modifying package: #{options[:url]}\n"
   response = JSON.parse(RestClient::Request.execute(options))
-  log "#{Time.now.iso8601(3)}: Success: #{response['success']}, Message: #{response['msg']}."
+  log "Success: #{response['success']}, Message: #{response['msg']} for #{options[:url]}}\n"
   raise "Unsuccessful response from AEM Server: #{response}" unless response['success']
   response
 end
@@ -131,10 +133,13 @@ end
 
 action :upload do
   package_version = get_package_version
-  # Delete all existing packages of the same name not matching current package version
   @uploaded_packages = get_current_packages(new_resource.name)
+  # Uninstall and delete all existing packages that do not match current package version
   @uploaded_packages.each do |uploaded_package|
-    delete_package(uploaded_package['downloadname']) unless uploaded_package['version'] == package_version
+    unless uploaded_package['version'] == package_version
+      uninstall_package(uploaded_package['downloadname']) unless uploaded_package['lastunpacked'] == nil
+      delete_package(uploaded_package['downloadname'])
+    end
   end
   # Upload this package unless it's already uploaded
   upload_package(new_resource.file_path) unless @uploaded_packages.any? { |uploaded_package| uploaded_package['version'] == package_version }
@@ -152,8 +157,14 @@ action :install do
   @uploaded_packages = get_current_packages(new_resource.name)
   # Uninstall and delete all existing packages that do not match current package version
   @uploaded_packages.each do |uploaded_package|
-    delete_package(uploaded_package['downloadname']) unless uploaded_package['version'] == package_version
+     unless uploaded_package['version'] == package_version
+       uninstall_package(uploaded_package['downloadname']) unless uploaded_package['lastunpacked'] == nil
+       delete_package(uploaded_package['downloadname'])
+     end
   end
+  # Upload the package unless it is already uploaded
+  upload_package(new_resource.file_path) unless @uploaded_packages.any? { |uploaded_package| uploaded_package['version'] == package_version }
+  # Install package unless it is already installed
   install_package(new_resource.file_name) unless @uploaded_packages.any? { |uploaded_package| uploaded_package['version'] == package_version && uploaded_package['lastunpacked'] != nil }
 end
 
