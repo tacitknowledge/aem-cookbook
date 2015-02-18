@@ -44,10 +44,14 @@ unless node['aem']['version']
   Chef::Application.fatal! 'aem.version attribute cannot be nil. Please populate that attribute.'
 end
 
-include_recipe "java"
-package "unzip"
+include_recipe 'java'
+include_recipe 'xml::ruby'
+package 'unzip'
+chef_gem 'rest-client'
+r = chef_gem 'activesupport'
+r.run_action(:install)
 
-if node[:aem][:use_yum] then
+if node[:aem][:use_yum]
   package 'aem' do
     version node[:aem][:version]
     action :install

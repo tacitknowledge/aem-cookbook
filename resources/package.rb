@@ -24,8 +24,9 @@ attribute :name, :kind_of => String, :name_attribute => true, :required => true
 attribute :aem_instance, :kind_of => String, :required => true
 attribute :pkg_mgr_url, :kind_of => String, :default => nil
 attribute :package_url, :kind_of => String, :default => nil
+attribute :checksum, :kind_of => String, :default => nil
 attribute :version, :kind_of => String, :default => nil
-attribute :file_extension, :kind_of => String, :default => ".zip"
+attribute :file_extension, :kind_of => String, :default => '.zip'
 attribute :update, :kind_of => [TrueClass, FalseClass], :default => false
 attribute :user, :kind_of => String, :required => true
 attribute :password, :kind_of => String, :required => true
@@ -34,3 +35,15 @@ attribute :group_id, :kind_of => String, :default => nil
 attribute :recursive, :kind_of => [TrueClass, FalseClass], :default => false
 attribute :properties_file, :kind_of => String, :default => nil
 attribute :version_pattern, :kind_of => String, :default => nil
+attribute :aem_host, :kind_of => String, :default => 'localhost'
+attribute :timeout, :kind_of => Fixnum, :default => 60 * 10
+
+def file_name
+  "#{name}-#{version}#{file_extension}"
+end
+
+def file_path
+  "#{Chef::Config[:file_cache_path]}/#{file_name}"
+end
+
+
