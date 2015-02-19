@@ -1,3 +1,8 @@
+# 1.1.2
+* Fixes
+  * replicator provider now creates cache flush agents
+  * default dispatcher vhost now handles mime-types
+
 # 1.1.1
 
 * Fixes
