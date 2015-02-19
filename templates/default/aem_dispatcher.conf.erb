@@ -82,6 +82,7 @@
   <Directory <%= dir %>>
     <IfModule disp_apache2.c>
       SetHandler dispatcher-handler
+      ModMimeUsePathInfo On
     </IfModule>
   </Directory>
 

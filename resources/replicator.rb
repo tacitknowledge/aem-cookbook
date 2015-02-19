@@ -27,3 +27,4 @@ attribute :dynamic_cluster, :kind_of => [ TrueClass, FalseClass ], :default => f
 attribute :cluster_name, :kind_of => String, :default => nil
 attribute :cluster_role, :kind_of => String, :default => nil
 attribute :type, :kind_of => Symbol, :default => nil
+attribute :server, :kind_of => String, :default => nil
