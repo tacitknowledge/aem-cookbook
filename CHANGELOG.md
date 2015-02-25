@@ -1,3 +1,7 @@
+# 1.1.3
+* Fixes
+  * add support to change password in AEM6
+
 # 1.1.2
 * Fixes
   * replicator provider now creates cache flush agents
