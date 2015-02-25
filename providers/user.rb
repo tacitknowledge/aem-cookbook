@@ -35,11 +35,16 @@ end
 
 action :set_password do
 
-  user,password,admin_user,admin_password,port,aem_version,path,group = set_vars
 
-  if aem_version.to_f > 5.4
+  user,password,admin_user,admin_password,port,aem_version,path,group = set_vars
+  
+
+  case
+  when aem_version.to_f >= 6.0
+    cmd = ERB.new(node[:aem][:commands][:password][:aem60]).result(binding)
+  when aem_version.to_f > 5.4
     cmd = ERB.new(node[:aem][:commands][:password][:aem55]).result(binding)
-  else
+  else 
     cmd = ERB.new(node[:aem][:commands][:password][:aem54]).result(binding)
   end
 
