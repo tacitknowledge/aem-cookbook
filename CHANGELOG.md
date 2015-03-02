@@ -1,3 +1,8 @@
+
+# 1.1.4
+* Fixes
+  * fix for aem_jcr_node provider - check for 201 on node creation, check for content of binary instead of path
+
 # 1.1.3
 * Fixes
   * add support to change password in AEM6
