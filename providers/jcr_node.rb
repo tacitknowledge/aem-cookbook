@@ -40,10 +40,12 @@ end
 def check_node(url, user, password, name)
   url = "#{url}/#{name}"
   c = curl(url, user, password)
+  Chef::Log.warn("THIS IS THE RESPONSE CODE: #{c.response_code}")
+  Chef::Log.warn("URL WE'RE CHECKING: #{url}")
   case c.response_code
   when 200, 201
     c.body_str
-  when 302
+  when 404
     false
   else
     raise "Unable to read JCR node at #{url}. response_code: #{c.response_code} response: #{c.body_str}"
