@@ -37,10 +37,11 @@ def curl_form(url, user, password, fields)
   c
 end
 
-def check_node(url, user, password)
+def check_node(url, user, password, name)
+  url = "#{url}/#{name}"
   c = curl(url, user, password)
   case c.response_code
-  when 200
+  when 200, 201
     c.body_str
   when 404
     false
@@ -58,13 +59,13 @@ action :create do
   # How to create the node depends on the type.  I'm only supporting type 'file' right now.
   case new_resource.type
   when 'file'
-    unless check_node(url, new_resource.user, new_resource.password) == new_resource.contents
+    unless check_node(url, new_resource.user, new_resource.password, new_resource.name) == new_resource.contents
       fields = [
         Curl::PostField.file(new_resource.name, new_resource.contents),
         Curl::PostField.content("#{new_resource.name}@TypeHint", "Binary")
       ]
       c = curl_form(url, new_resource.user, new_resource.password, fields)
-      if c.response_code == 200
+      if c.response_code == 200 || c.response_code == 201
         new_resource.updated_by_last_action(true)
       else
         raise "JCR Node Creation failed.  HTTP code: #{c.response_code}"
@@ -77,11 +78,11 @@ end
 
 action :delete do
   url = make_url(new_resource)
-  if check_node(url, new_resource.user, new_resource.password)
+  if check_node(url, new_resource.user, new_resource.password, new_resource.name)
     # If the node exists, delete it
     fields = [ Curl::PostField.content(":operation", "delete") ]
     c = curl_form(url, new_resource.user, new_resource.password, fields)
-    if c.response_code == 200
+    if c.response_code == 200 || c.response_code == 201
       new_resource.updated_by_last_action(true)
     else
       raise "JCR Node Deletion failed.  HTTP code: #{c.response_code}"
