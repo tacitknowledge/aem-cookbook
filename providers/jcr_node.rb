@@ -40,8 +40,6 @@ end
 def check_node(url, user, password, name)
   url = "#{url}/#{name}"
   c = curl(url, user, password)
-  Chef::Log.warn("THIS IS THE RESPONSE CODE: #{c.response_code}")
-  Chef::Log.warn("URL WE'RE CHECKING: #{url}")
   case c.response_code
   when 200, 201
     c.body_str
