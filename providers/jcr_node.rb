@@ -43,10 +43,10 @@ def check_node(url, user, password, name)
   case c.response_code
   when 200, 201
     c.body_str
-  when 404
+  when 302
     false
   else
-    raise "Unable to read JCR node at #{url}. response: #{c.body_str}"
+    raise "Unable to read JCR node at #{url}. response_code: #{c.response_code} response: #{c.body_str}"
   end
 end
 
@@ -67,6 +67,7 @@ action :create do
       c = curl_form(url, new_resource.user, new_resource.password, fields)
       if c.response_code == 200 || c.response_code == 201
         new_resource.updated_by_last_action(true)
+        Chef::Log.debug("New jcr_node was created at #{new_resource.path}")
       else
         raise "JCR Node Creation failed.  HTTP code: #{c.response_code}"
       end
