@@ -1,3 +1,6 @@
+# 1.1.5
+* Enhancements
+  * Adding support for Header derictive in Apache
 
 # 1.1.4
 * Fixes
