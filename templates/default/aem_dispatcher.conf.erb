@@ -121,4 +121,8 @@
   RewriteLog <%= node[:apache][:log_dir] %>/<%= @application_name %>-rewrite.log
   RewriteLogLevel 0
 
+  <% @params[:header].each do |head| %>
+  <%= head %>
+  <% end %>
+
 </VirtualHost>

@@ -215,3 +215,4 @@ default[:aem][:dispatcher][:enable_session_mgmt] = false
 default[:aem][:dispatcher][:mod_dispatcher_url] = nil
 default[:aem][:dispatcher][:mod_dispatcher_checksum] = nil
 default[:aem][:dispatcher][:deflate_enabled] = true
+default[:aem][:dispatcher][:header] = []

@@ -39,3 +39,4 @@ attribute :template_cookbook, :kind_of => String, :default => 'aem'
 attribute :template_name, :kind_of => String, :default => 'aem_dispatcher.conf.erb'
 attribute :deflate_enabled, :kind_of => [TrueClass, FalseClass ], :default => false
 attribute :local_vars, :kind_of => Hash, :default => nil
+attribute :header, :kind_of => Array, :default => nil
