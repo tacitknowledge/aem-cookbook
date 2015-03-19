@@ -26,7 +26,7 @@ action :add do
     :site_name, :server_name, :server_aliases, :aem_locations, :cache_root,
     :enabled, :rewrites, :listen_port, :ssl_enabled, :ssl_cert_file,
     :ssl_key_file, :expire_dirs, :enable_etag, :enable_ie_header,
-    :template_cookbook, :template_name, :deflate_enabled, :local_vars
+    :template_cookbook, :template_name, :deflate_enabled, :local_vars, :header
   ]
   var_list.each do |var|
     vars[var] = new_resource.send(var) || node[:aem][:dispatcher][var]
@@ -59,6 +59,7 @@ action :add do
     deflate_enabled vars[:deflate_enabled]
     local_vars vars[:local_vars]
     enable vars[:enabled]
+    header vars[:header]
   end
 end
 
