@@ -15,5 +15,3 @@ bin/*
 .kitchen/
 
 .DS_Store
-VERSION
-
