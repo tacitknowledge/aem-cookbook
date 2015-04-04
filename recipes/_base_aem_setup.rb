@@ -29,8 +29,6 @@ chef_gem 'curb' do
   action :nothing
 end.run_action(:install)
 
-require 'curb'
-
 unless node['aem']['license_url']
   Chef::Application.fatal! 'aem.license_url attribute cannot be nil. Please populate that attribute.'
 end
