@@ -45,7 +45,7 @@ default[:aem][:commands] = {
     :flush => {:add => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/flush<%=instance%>/_jcr_content  -d transportUri=http://<%=h[:ipaddress]%>/dispatcher/invalidate.cache -d enabled=true -d transportUser=<%=h[:user]%> -d transportPassword=<%=h[:password]%> -d jcr:title=flush<%=instance%> -d jcr:description=flush<%=instance%> -d serializationType=flush -d cq:template=/libs/cq/replication/templates/agent -d sling:resourceType="cq/replication/components/agent" -d retryDelay=60000 -d logLevel=info -d triggerSpecific=true -d triggerReceive=true'},
     :flush_agent => {:add => 'curl -F "jcr:primaryType=cq:Page" -F "jcr:content=" -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>'},
     :agent => {:add => 'curl -F "jcr:primaryType=cq:Page" -F "jcr:content=" -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>',
-               :remove => 'curl -u <%=local_user%>:<%=local_password%> -X DELETE http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=h%>',
+               :remove => 'curl -u <%=local_user%>:<%=local_password%> -X DELETE http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>',
                :list => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.infinity.json'}
   },
   :password => {
