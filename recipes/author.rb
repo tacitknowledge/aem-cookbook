@@ -85,6 +85,7 @@ unless node[:aem][:author][:new_admin_password].nil?
     action :set_password
   end
   node.set[:aem][:author][:admin_password] = node[:aem][:author][:new_admin_password]
+  node.set[:aem][:author][:new_admin_password] = nil
 end
 
 #delete the privileged users from geometrixx, if they're still there.
