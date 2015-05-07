@@ -83,7 +83,7 @@ aem_user node[:aem][:author][:admin_user] do
   aem_version node[:aem][:version]
   action :set_password
   only_if { node[:aem][:author][:new_admin_password] }
-  not_if { node.set[:aem][:author][:new_admin_password] == node.set[:aem][:author][:admin_password] }
+  not_if { node[:aem][:author][:new_admin_password] == node[:aem][:author][:admin_password] }
   notifies :run, 'ruby_block[Store new admin password in node]', :immediately
 end
 
