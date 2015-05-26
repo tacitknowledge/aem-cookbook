@@ -68,6 +68,16 @@
           }
       <% end %>
       }
+    /ignoreUrlParams
+      {
+      <% @ignore_url_params.keys.sort.each do |rule_number| %>
+        /<%= rule_number %>
+          {
+            /glob "<%= @ignore_url_params[rule_number][:glob] %>"
+            /type "<%= @ignore_url_params[rule_number][:type] %>"
+          }
+      <% end %>
+      } 
     }
   /statistics
     {

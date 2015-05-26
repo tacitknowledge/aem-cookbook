@@ -28,6 +28,7 @@ attribute :farm_dir, :kind_of => String, :default => nil
 attribute :cache_rules, :kind_of => Hash, :default => nil
 attribute :invalidation_rules, :kind_of => Hash, :default => nil
 attribute :allowed_clients, :kind_of => Hash, :default => nil
+attribute :ignore_url_params, :kind_of => Hash, :default => nil
 attribute :statistics, :kind_of => Array, :default => nil
 attribute :cache_opts, :kind_of => Array, :default => nil
 attribute :session_mgmt, :kind_of => Hash, :default => nil

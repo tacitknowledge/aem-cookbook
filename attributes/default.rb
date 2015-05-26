@@ -190,6 +190,7 @@ default[:aem][:dispatcher][:invalidation_rules] = {
     "0001" => { :glob => "*.html", :type => "allow" }
   }
 default[:aem][:dispatcher][:allowed_clients] = {}
+default[:aem][:dispatcher][:ignore_url_params] = {}
 default[:aem][:dispatcher][:statistics] = [
     { :name => "html", :glob => "*.html" },
     { :name => "others", :glob => "*" },
