@@ -60,6 +60,10 @@ default[:aem][:commands] = {
     :aem55 => 'curl -u <%= admin_user %>:<%= admin_password %> -FcreateUser= -FauthorizableId=<%= user %> -Frep:password=<%= password %> -Fmembership=<%= group %> http://localhost:<%= port %>/libs/granite/security/post/authorizables'
   }
 }
+
+# used in the aem_jar_installer to allow for a more fine grain check to determine if an unpack is necessary or not
+default[:aem][:unpack_jar_dir] = "crx-quickstart"
+
 default[:aem][:author] = {
   :default_context => "/opt/aem/author",
   :port => "4502",

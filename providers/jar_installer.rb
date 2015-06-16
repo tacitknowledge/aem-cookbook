@@ -58,5 +58,5 @@ action :install do
     user "crx"
     cwd vars[:default_context]
     code "java -jar #{jar_name} -unpack"
-  end unless Object::File.exists?("#{vars[:default_context]}/crx-quickstart")
+  end unless Object::File.exists?("#{vars[:default_context]}/#{node[:aem][:unpack_jar_dir]}")
 end
