@@ -26,6 +26,7 @@ action :add do
                :renders => :array, :statistics => :array,
                :filter_rules => :hash, :cache_rules=> :hash,
                :invalidation_rules => :hash, :allowed_clients => :hash,
+               :ignore_url_params => :hash,
                :cache_root => :scalar, :farm_dir => :scalar,
                :farm_name => :scalar, :cache_opts => :array,
                :session_mgmt => :hash, :enable_session_mgmt => :scalar }
