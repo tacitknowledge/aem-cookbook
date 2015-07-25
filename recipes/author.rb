@@ -48,7 +48,6 @@ aem_init "aem-author" do
   action :add
 end
 
-### ..modify starts here...
 if node[:aem][:install_cfg] then
   aem_install_cfg "install_cfg" do
     base_dir node[:aem][:author][:base_dir]
@@ -56,8 +55,6 @@ if node[:aem][:install_cfg] then
     action :add
   end
 end
-
-###
 
 service "aem-author" do
   #init script returns 0 for status no matter what
