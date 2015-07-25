@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: aem
-# Resource:: document_node_store_service_cfg
+# Resource:: install_cfg
 #
 # Copyright 2012, Tacit Knowledge, Inc.
 #
@@ -16,9 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This resource creates a crx-quickstart/install file for org.apache.jackrabbit.oak.plugins.document.DocumentNodeStoreService.cfg
+# This resource creates crx-quickstart/install configuration files
 
 actions :add
 
 attribute :service_name, :kind_of => String, :name_attribute => true, :required => true
 attribute :base_dir, :kind_of => String, :default => nil
+attribute :configs, :kind_of => Array, :default => nil

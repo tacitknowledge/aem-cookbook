@@ -49,10 +49,12 @@ aem_init "aem-author" do
 end
 
 ### ..modify starts here...
-
-aem_document_node_store_service_cfg "" do
-  base_dir node[:aem][:author][:base_dir]
-  action :add
+if node[:aem][:install_cfg] then
+  aem_install_cfg "install_cfg" do
+    base_dir node[:aem][:author][:base_dir]
+    configs node[:aem][:install_cfg]
+    action :add
+  end
 end
 
 ###

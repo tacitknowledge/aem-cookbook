@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: aem
-# Provider:: document_node_store_service_cfg
+# Provider:: intall_cfg
 #
 # Copyright 2012, Tacit Knowledge, Inc.
 #
@@ -16,24 +16,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This provider creates a crx-quickststart/install config file for org.apache.jackrabbit.oak.plugins.document.DocumentNodeStoreService.cfg
+# This provider creates crx-quickststart/install configuration files
 
 action :add do
-  vars = {}
   service_name = new_resource.service_name
   base_dir = new_resource.base_dir
-  var_list = [
-    :base_dir
-  ]
+  configs = new_resource.configs
 
-  #take value passed to provider, or node attribute
-  var_list.each do |var|
-    vars[var] = new_resource.send(var) || node[:aem][var]
+  directory "#{base_dir}/install" do
+    owner "crx"
+    mode "0755"
+    recursive true
+    action :create
   end
-  template "#{base_dir}/install/org.apache.jackrabbit.oak.plugins.document.DocumentNodeStoreService.cfg" do
-    cookbook 'aem'
-    source 'org.apache.jackrabbit.oak.plugins.document.DocumentNodeStoreService.cfg.erb'
-    mode '0755'
-    variables(vars)
+
+  # create each file..
+  configs.each do |cfg|
+    name = cfg["name"]
+    vars = {}
+    vars["settings"] = cfg["settings"]
+
+    template "#{base_dir}/install/#{name}" do
+      cookbook "aem"
+      source "install.cfg.erb"
+      mode "0755"
+      variables(vars)
+      action :create_if_missing
+    end
   end
+
 end
