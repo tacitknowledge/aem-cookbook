@@ -48,6 +48,15 @@ aem_init "aem-author" do
   action :add
 end
 
+### ..modify starts here...
+
+aem_document_node_store_service_cfg "" do
+  base_dir node[:aem][:author][:base_dir]
+  action :add
+end
+
+###
+
 service "aem-author" do
   #init script returns 0 for status no matter what
   status_command "service aem-author status | grep running"
