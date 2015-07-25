@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: aem
-# Provider:: intall_cfg
+# Provider:: install_cfg
 #
 # Copyright 2012, Tacit Knowledge, Inc.
 #

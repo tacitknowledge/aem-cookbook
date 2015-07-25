@@ -50,7 +50,7 @@ end
 
 if node[:aem][:install_cfg] then
   aem_install_cfg "install_cfg" do
-    base_dir node[:aem][:author][:base_dir]
+    base_dir node[:aem][:publish][:base_dir]
     configs node[:aem][:install_cfg]
     action :add
   end
