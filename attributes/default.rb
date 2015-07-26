@@ -51,7 +51,8 @@ default[:aem][:commands] = {
   :password => {
     :aem54 => 'curl -f --data rep:password=<%= password %> --user <%= admin_user %>:<%= admin_password %> http://localhost:<%= port %><%= path %>/<%= user %>',
     :aem55 => 'curl -f --user <%= admin_user %>:<%= admin_password %> -F rep:password="<%= password %>" http://localhost:<%= port %><%= path %>/<%= user %>.rw.html',
-    :aem60 => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %>/<%= admin_user %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp'
+    :aem60 => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %>/<%= admin_user %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp',
+    :aem61 => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp',
   },
   :remove_user => {
     :aem55 => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable= http://localhost:<%= port %><%= path %>/<%= user %>'
