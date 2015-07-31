@@ -26,10 +26,9 @@ package 'gcc' do
 end.run_action(:install)
 
 chef_gem 'curb' do
+  compile_time false if Chef::Resource::ChefGem.method_defined?(:compile_time)
   action :nothing
 end.run_action(:install)
-
-require 'curb'
 
 unless node['aem']['license_url']
   Chef::Application.fatal! 'aem.license_url attribute cannot be nil. Please populate that attribute.'
