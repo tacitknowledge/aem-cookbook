@@ -18,8 +18,6 @@
 
 # This provider manages an AEM JCR node
 
-require 'curb'
-
 def curl(url, user, password)
   c = Curl::Easy.new(url)
   c.http_auth_types = :basic
