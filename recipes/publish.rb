@@ -76,16 +76,23 @@ else
 end
 
 #Change admin password
-unless node[:aem][:publish][:new_admin_password].nil?
-  aem_user node[:aem][:publish][:admin_user] do
-    password node[:aem][:publish][:new_admin_password]
-    admin_user node[:aem][:publish][:admin_user]
-    admin_password node[:aem][:publish][:admin_password]
-    port node[:aem][:publish][:port]
-    aem_version node[:aem][:version]
-    action :set_password
+aem_user node[:aem][:publish][:admin_user] do
+  password node[:aem][:publish][:new_admin_password]
+  admin_user node[:aem][:publish][:admin_user]
+  admin_password node[:aem][:publish][:admin_password]
+  port node[:aem][:publish][:port]
+  aem_version node[:aem][:version]
+  action :set_password
+  only_if { node[:aem][:publish][:new_admin_password] }
+  not_if { node[:aem][:publish][:new_admin_password] == node[:aem][:publish][:admin_password] }
+  notifies :run, 'ruby_block[Store new admin password in node]', :immediately
+end
+
+ruby_block 'Store new admin password in node' do
+  block do
+    node.set[:aem][:publish][:admin_password] = node[:aem][:publish][:new_admin_password]
   end
-  node.set[:aem][:publish][:admin_password] = node[:aem][:publish][:new_admin_password]
+  action :nothing
 end
 
 #delete the privileged users from geometrixx, if they're still there.
