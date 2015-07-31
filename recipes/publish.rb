@@ -30,6 +30,7 @@ end
 unless node[:aem][:license_url].nil?
   remote_file "#{node[:aem][:publish][:default_context]}/license.properties" do
     source "#{node[:aem][:license_url]}"
+    sensitive true
     mode 0644
   end
 end
