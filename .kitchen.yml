@@ -11,6 +11,69 @@ platforms:
   - name: centos-6.5
 
 suites:
+  - name: author-6.1.0-oraclejdk8
+    driver:
+      customize:
+        memory: '2560'
+    run_list:
+      - recipe[aem::author]
+    attributes:
+      aem:
+        version: '6.1.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_610'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_610'] %>
+        aem_options: 
+          CQ_HEAP_MAX: '1024'
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '8'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: publish-6.1.0-oraclejdk8
+    driver:
+      customize:
+        memory: '2560'
+    run_list:
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        version: '6.1.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_610'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_610'] %>
+        aem_options: 
+          CQ_HEAP_MAX: '1024'
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '8'
+        oracle:
+          accept_oracle_download_terms: true
+  - name: author-publish-6.1.0-oraclejdk8
+    driver:
+      customize:
+        memory: '5120'
+    run_list:
+      - recipe[aem::author]
+      - recipe[aem::publish]
+    attributes:
+      aem:
+        version: '6.1.0'
+        download_url: <%= ENV['AEM_DOWNLOAD_URL_610'] %>
+        license_url: <%= ENV['AEM_LICENSE_URL_610'] %>
+        aem_options: 
+          CQ_HEAP_MAX: '1024'
+        author:
+          startup:
+            max_attempts: 40
+            wait_between_attempts: 30
+        publish:
+          startup:
+            max_attempts: 40
+            wait_between_attempts: 30
+      java:
+        install_flavor: 'oracle'
+        jdk_version: '8'
+        oracle:
+          accept_oracle_download_terms: true
   - name: author-6.0.0-oraclejdk7
     driver:
       customize:
