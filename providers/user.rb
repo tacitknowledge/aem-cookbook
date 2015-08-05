@@ -33,6 +33,23 @@ def set_vars
   [ user, password, admin_user, admin_password, port, aem_version, path, group ]
 end
 
+def curl(url, user, password)
+  c = Curl::Easy.new(url)
+  c.http_auth_types = :basic
+  c.username = user
+  c.password = password
+  c.perform
+  c
+end
+
+def get_usr_path(port, user, admin_user, admin_password)
+  url_user = "http://localhost:#{port}/bin/querybuilder.json?path=/home/users&1_property=rep:authorizableId&1_property.value=#{user}&p.limit=-1"
+  c = curl(url_user, admin_user, admin_password)
+  usr_json = JSON.parse(c.body_str)
+  path = usr_json["hits"][0]["path"]
+  path
+end
+
 action :set_password do
 
 
@@ -40,7 +57,11 @@ action :set_password do
   
 
   case
-  when aem_version.to_f >= 6.0
+  when aem_version.to_f >= 6.1
+    path = get_usr_path(port, user, admin_user, admin_password)
+    cmd = ERB.new(node[:aem][:commands][:password][:aem61]).result(binding) 
+    Chef::Log.info(cmd) 
+  when aem_version.to_f == 6.0
     cmd = ERB.new(node[:aem][:commands][:password][:aem60]).result(binding)
   when aem_version.to_f > 5.4
     cmd = ERB.new(node[:aem][:commands][:password][:aem55]).result(binding)
