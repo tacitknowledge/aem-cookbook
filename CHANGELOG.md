@@ -1,3 +1,30 @@
+# 1.1.11
+* Enhancements
+  * Add support for changing user passwords in AEM 6.1
+  * Add AEM 6.1 test kitchen configuration
+
+# 1.1.10
+* Enhancements
+  * Run and store admin password if new_admin_password is set and does not match the current admin password
+
+# 1.1.9
+* Enhancements
+  * Fixed issue with curb gem failing to be included during compile time
+
+# 1.1.8
+* Enhancements
+  * Mark license.properties file as sensitive
+* Fixes
+  * Fix deprecation warning for chef_gem
+
+# 1.1.7
+* Enhancements
+  * Add support for Ignore URL Params for farm.any configuration template
+
+# 1.1.6
+* Enhancements
+  * parameterized jar unpack path
+
 # 1.1.5
 * Enhancements
   * Adding support for Header derictive in Apache
