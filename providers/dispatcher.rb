@@ -57,7 +57,7 @@ action :install do
         ark filename do
           url dispatcher_uri
           checksum dispatcher_checksum
-          creates "modules/dispatcher-#{webserver_type}-#{dispatcher_version}.so"
+          creates "modules/dispatcher-#{webserver_type}-*#{dispatcher_version}.so"
           path apache_libexecdir
           action :cherry_pick
         end
