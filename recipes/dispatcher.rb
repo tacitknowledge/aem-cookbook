@@ -29,7 +29,7 @@ aem_dispatcher 'mod_dispatcher.so' do
   dispatcher_version       node[:aem][:dispatcher][:version]
   dispatcher_file_cookbook node[:aem][:dispatcher][:dispatcher_file_cookbook]
   webserver_type           node[:aem][:dispatcher][:webserver_type]
-  apache_libexecdir        node[:apache][:libexecdir]
+  apache_libexecdir        "/etc/httpd/#{node[:apache][:libexecdir]}"
   action :install
 end
 
