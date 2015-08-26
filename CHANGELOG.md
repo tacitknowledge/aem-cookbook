@@ -1,3 +1,7 @@
+# 1.1.13
+* Enhancements
+  * Add support for changing user passwords in AEM 5.6
+
 #1.1.12
 * Fixes
   * Modified apache_libexecdir dispatcher resource to support both new and old attribute name
