@@ -1,3 +1,7 @@
+#1.1.14
+* Fixes
+  * Fix the curl command for setting user password in AEM 5.6
+	
 # 1.1.13
 * Enhancements
   * Add support for changing user passwords in AEM 5.6
