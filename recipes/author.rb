@@ -75,31 +75,26 @@ else
   end
 end
 
-#Change admin password
-aem_user node[:aem][:author][:admin_user] do
-  password node[:aem][:author][:new_admin_password]
-  admin_user node[:aem][:author][:admin_user]
-  admin_password node[:aem][:author][:admin_password]
-  port node[:aem][:author][:port]
-  aem_version node[:aem][:version]
-  action :set_password
-  only_if { node[:aem][:author][:new_admin_password] }
-  not_if { node[:aem][:author][:new_admin_password] == node[:aem][:author][:admin_password] }
-  notifies :run, 'ruby_block[Store new admin password in node]', :immediately
-end
-
-ruby_block 'Store new admin password in node' do
-  block do
-    node.set[:aem][:author][:admin_password] = node[:aem][:author][:new_admin_password]
+unless node[:aem][:author][:new_admin_password].nil?
+  # Change admin password
+  aem_user node[:aem][:author][:admin_user] do
+    password node[:aem][:author][:new_admin_password]
+    admin_user node[:aem][:author][:admin_user]
+    admin_password node[:aem][:author][:admin_password]
+    port node[:aem][:author][:port]
+    aem_version node[:aem][:version]
+    action :set_password
   end
-  action :nothing
+
+  node.set[:aem][:author][:admin_password] = node[:aem][:author][:new_admin_password]
+  node.set[:aem][:author][:new_admin_password] = nil
 end
 
 #delete the privileged users from geometrixx, if they're still there.
 node[:aem][:geometrixx_priv_users].each do |user|
   aem_user user do
     admin_user node[:aem][:author][:admin_user]
-    admin_password node[:aem][:author][:admin_password]
+    admin_password lazy { node[:aem][:author][:admin_password] }
     port node[:aem][:author][:port]
     aem_version node[:aem][:version]
     path "/home/users/geometrixx"
@@ -140,7 +135,7 @@ node[:aem][:author][:deploy_pkgs].each do |pkg|
     package_url pkg[:url]
     update pkg[:update]
     user node[:aem][:author][:admin_user]
-    password node[:aem][:author][:admin_password]
+    password lazy { node[:aem][:author][:admin_password] }
     port node[:aem][:author][:port]
     group_id pkg[:group_id]
     recursive pkg[:recursive]
@@ -154,7 +149,7 @@ end
 #Remove author agents that aren't listed
 aem_replicator "delete_extra_replication_agents" do
   local_user node[:aem][:author][:admin_user]
-  local_password node[:aem][:author][:admin_password]
+  local_password lazy { node[:aem][:author][:admin_password] }
   local_port node[:aem][:author][:port]
   remote_hosts node[:aem][:author][:replication_hosts]
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
@@ -167,7 +162,7 @@ end
 #Set up author agents
 aem_replicator "create_replication_agents_for_publish_servers" do
   local_user node[:aem][:author][:admin_user]
-  local_password node[:aem][:author][:admin_password]
+  local_password lazy { node[:aem][:author][:admin_password] }
   local_port node[:aem][:author][:port]
   remote_hosts node[:aem][:author][:replication_hosts]
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
@@ -180,7 +175,7 @@ end
 #Set up replication agents
 aem_replicator "replicate_to_publish_servers" do
   local_user node[:aem][:author][:admin_user]
-  local_password node[:aem][:author][:admin_password]
+  local_password lazy { node[:aem][:author][:admin_password] }
   local_port node[:aem][:author][:port]
   remote_hosts node[:aem][:author][:replication_hosts]
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
