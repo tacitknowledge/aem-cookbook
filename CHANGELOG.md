@@ -1,3 +1,7 @@
+#1.1.15
+* Fixes
+  * Fix agent removal curl command.
+
 #1.1.14
 * Fixes
   * Fix the curl command for setting user password in AEM 5.6
