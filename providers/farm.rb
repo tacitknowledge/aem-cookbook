@@ -48,7 +48,10 @@ action :add do
     cluster_name = new_resource.cluster_name
     cluster_type = new_resource.cluster_type
     timeout = new_resource.render_timeout
-    renders = search(:node, %Q(role:"#{role}" AND aem_cluster_name:"#{cluster_name}"))
+
+    search_criteria = AEM::Helpers.build_cluster_search_criteria(role, cluster_name)
+    renders = search(:node, search_criteria)
+
     #Don't want to rely on what order the search results come back in
     renders.sort! {|a,b| a[:hostname] <=> b[:hostname]}
     renders.each do |r|
