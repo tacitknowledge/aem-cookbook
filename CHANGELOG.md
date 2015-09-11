@@ -1,3 +1,7 @@
+#1.1.16
+* Fixes
+  * Revert back to old mechanism of updating admin password, since the existing way does not converge on the first Chef run.
+	
 #1.1.15
 * Fixes
   * Fix agent removal curl command.
