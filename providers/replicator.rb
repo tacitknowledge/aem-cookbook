@@ -30,6 +30,7 @@ action :add do
   cluster_name = new_resource.cluster_name
   type = new_resource.type
   server = new_resource.server || 'author'
+  aem_version = new_resource.aem_version
 
   raise "No command specified for replicator type: #{type}. See node attribute :aem->" +
     ":commands->:replicators." unless node[:aem][:commands][:replicators][type][:add]
@@ -71,7 +72,17 @@ action :add do
   counter = 0
   hosts.each do |h|
     instance = counter > 0 ? counter.to_s : ""
-    cmd = ERB.new(node[:aem][:commands][:replicators][type][:add]).result(binding)
+
+    if h[:agent_id].nil? then
+      log "No agent id found, don't populate the userId value for the replication agent"
+      agent_id_param = ""
+    else
+      log "Agent id found #{h[:agent_id]}, populate the userId value for the replication agent with it"
+      agent_id_param = "-F \"jcr:content/userId=#{h[:agent_id]}\""
+    end
+
+    aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:add], aem_version)
+    cmd = ERB.new(aem_command).result(binding)
 
     log "Adding replication agent with command: #{cmd}"
     runner = Mixlib::ShellOut.new(cmd)
@@ -91,6 +102,7 @@ action :remove do
   cluster_name = new_resource.cluster_name
   type = new_resource.type
   server = new_resource.server || 'author'
+  aem_version = new_resource.aem_version
 
   raise "No command specified for replicator type: #{type}. See node attribute :aem->" +
     ":commands->:replicators." unless node[:aem][:commands][:replicators][type][:remove]
@@ -129,7 +141,8 @@ action :remove do
     hosts.sort! { |a,b| a[:name] <=> b[:name] }
 
     if type == :agent || type == :flush_agent
-      cmd = ERB.new(node[:aem][:commands][:replicators][type][:list]).result(binding)
+      aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:list], aem_version)
+      cmd = ERB.new(aem_command).result(binding)
 
       log "Creating list of agents wth command: #{cmd}"
       runner = Mixlib::ShellOut.new(cmd)
@@ -154,11 +167,12 @@ action :remove do
     end
   end
 
-
   counter = 0
   hosts.each do |h|
     instance = counter > 0 ? counter.to_s : ""
-    cmd = ERB.new(node[:aem][:commands][:replicators][type][:remove]).result(binding)
+
+    aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:remove], aem_version)
+    cmd = ERB.new(aem_command).result(binding)
 
     log "Removing replication agent with command: #{cmd}"
     runner = Mixlib::ShellOut.new(cmd)

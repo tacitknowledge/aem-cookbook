@@ -28,3 +28,4 @@ attribute :cluster_name, :kind_of => String, :default => nil
 attribute :cluster_role, :kind_of => String, :default => nil
 attribute :type, :kind_of => Symbol, :default => nil
 attribute :server, :kind_of => String, :default => nil
+attribute :aem_version, :kind_of => String, :default => nil

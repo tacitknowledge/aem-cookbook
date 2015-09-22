@@ -34,6 +34,29 @@ class AEM
         role_search = role.include?('[') ? %Q{run_list:"#{role}"} : %Q{role:"#{role}"}
         %Q(#{role_search} AND aem_cluster_name:"#{cluster_name}")
       end
+
+      # This method will return the command that corresponds to the closest matching version number as long as a
+      # command exists with a version that is at least lower than the passed running_aem_version.
+      #
+      # commands should end up being a hash containing a 1:1 list of version => command
+      # See node[:aem][:commands] in attributes/default.rb.
+      def retrieve_command_for_version(commands, running_aem_version)
+        current_aem_version = Gem::Version.new(running_aem_version)
+        Chef::Log.info("Finding correct command for provided version: [#{running_aem_version}]")
+
+        matching_version = nil
+        matching_command = nil
+        commands.each do |version, command|
+          potential_version = Gem::Version.new(version)
+          if current_aem_version >= potential_version && (matching_version == nil || potential_version > matching_version)
+            matching_version = potential_version
+            matching_command = command
+          end
+        end
+        Chef::Log.info("Closest matching version: [#{matching_version}], command: [#{matching_command}]")
+
+        matching_command
+      end
     end
   end
 end

@@ -39,27 +39,55 @@ default[:aem][:aem_options] = {
   "CQ_HEAP_MAX" => "384",
   "CQ_PERMGEN" => "128"
 }
+
+# These work in such a way that the providers will find the closest matching command using the provided
+# node[:aem][:version]. The command matching the given version without going over will be used.
+# For example, if node[:aem][:version] is 5.5, then node[:aem][:commands][:replicators][:publish][:add]['5.4']
+# would be used, since the same command from 5.4 still works. This allows these command to be completely
+# attribute-driven (assuming that there's no other logic needed).
 default[:aem][:commands] = {
   :replicators => {
-    :publish => { :add => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=aem_instance%><%=instance%>/_jcr_content -d jcr:title="<%=type%> Agent <%=instance%>" -d transportUri=http://<%=h[:ipaddress]%>:<%=h[:port]%>/bin/receive?sling:authRequestLogin=1 -d enabled=true -d transportUser=<%=h[:user]%> -d transportPassword=<%=h[:password]%> -d cq:template="/libs/cq/replication/templates/agent" -d retryDelay=60000 -d logLevel=info -d serializationType=durbo -d jcr:description="<%=type%> Agent <%=instance%>" -d sling:resourceType="cq/replication/components/agent"'},
-    :flush => {:add => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/flush<%=instance%>/_jcr_content  -d transportUri=http://<%=h[:ipaddress]%>/dispatcher/invalidate.cache -d enabled=true -d transportUser=<%=h[:user]%> -d transportPassword=<%=h[:password]%> -d jcr:title=flush<%=instance%> -d jcr:description=flush<%=instance%> -d serializationType=flush -d cq:template=/libs/cq/replication/templates/agent -d sling:resourceType="cq/replication/components/agent" -d retryDelay=60000 -d logLevel=info -d triggerSpecific=true -d triggerReceive=true'},
-    :flush_agent => {:add => 'curl -F "jcr:primaryType=cq:Page" -F "jcr:content=" -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>'},
-    :agent => {:add => 'curl -F "jcr:primaryType=cq:Page" -F "jcr:content=" -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>',
-               :remove => 'curl -u <%=local_user%>:<%=local_password%> -X DELETE http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=h%>',
-               :list => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.infinity.json'}
+    :publish => {
+      :add => {
+        '5.4' => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=aem_instance%><%=instance%>/_jcr_content -d jcr:title="<%=type%> Agent <%=instance%>" -d transportUri=http://<%=h[:ipaddress]%>:<%=h[:port]%>/bin/receive?sling:authRequestLogin=1 -d enabled=true -d transportUser=<%=h[:user]%> -d transportPassword=<%=h[:password]%> -d cq:template="/libs/cq/replication/templates/agent" -d retryDelay=60000 -d logLevel=info -d serializationType=durbo -d jcr:description="<%=type%> Agent <%=instance%>" -d sling:resourceType="cq/replication/components/agent"',
+        '5.6' => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=aem_instance%><%=instance%> -F "jcr:primaryType=cq:Page" -F "jcr:content/jcr:primaryType=nt:unstructured" -F "jcr:content/jcr:title=<%=type%> Agent <%=instance%>" -F "jcr:content/transportUri=http://<%=h[:ipaddress]%>:<%=h[:port]%>/bin/receive?sling:authRequestLogin=1" -F "jcr:content/enabled=true" -F "jcr:content/transportUser=<%=h[:user]%>" -F "jcr:content/transportPassword=<%=h[:password]%>" -F "jcr:content/cq:template=/libs/cq/replication/templates/agent" -F "jcr:content/retryDelay=60000" -F "jcr:content/logLevel=info" -F "jcr:content/serializationType=durbo" -F "jcr:content/jcr:description=<%=type%> Agent <%=instance%>" <%=agent_id_param%> -F "jcr:content/sling:resourceType=cq/replication/components/agent"'
+      }
+    },
+    :flush => {
+      :add => {
+        '5.4' => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/flush<%=instance%>/_jcr_content  -d transportUri=http://<%=h[:ipaddress]%>/dispatcher/invalidate.cache -d enabled=true -d transportUser=<%=h[:user]%> -d transportPassword=<%=h[:password]%> -d jcr:title=flush<%=instance%> -d jcr:description=flush<%=instance%> -d serializationType=flush -d cq:template=/libs/cq/replication/templates/agent -d sling:resourceType="cq/replication/components/agent" -d retryDelay=60000 -d logLevel=info -d triggerSpecific=true -d triggerReceive=true',
+        '5.6' => 'curl -u <%=local_user%>:<%=local_password%> -X POST http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/flush<%=instance%>/_jcr_content  -d transportUri=http://<%=h[:ipaddress]%>/dispatcher/invalidate.cache -d enabled=true -d transportUser=<%=h[:user]%> -d transportPassword=<%=h[:password]%> -d jcr:title=flush<%=instance%> -d jcr:description=flush<%=instance%>'
+      }
+    },
+    :flush_agent => {
+      :add => {
+        '5.4' => 'curl -F "jcr:primaryType=cq:Page" -F "jcr:content=" -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>'
+      }
+    },
+    :agent => {
+      :add => {
+        '5.4' => 'curl -F "jcr:primaryType=cq:Page" -F "jcr:content=" -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=agent%><%=instance%>'
+      },
+      :remove => {
+        '5.4' => 'curl -u <%=local_user%>:<%=local_password%> -X DELETE http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=h%>'
+      },
+      :list => {
+        '5.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.infinity.json'
+      }
+    }
   },
   :password => {
-    :aem54 => 'curl -f --data rep:password=<%= password %> --user <%= admin_user %>:<%= admin_password %> http://localhost:<%= port %><%= path %>/<%= user %>',
-    :aem55 => 'curl -f --user <%= admin_user %>:<%= admin_password %> -F rep:password="<%= password %>" http://localhost:<%= port %><%= path %>/<%= user %>.rw.html',
-    :aem56 => 'curl -u <%= admin_user %>:<%= admin_password %> -F rep:password="<%= password %>" -F :currentPassword="<%= admin_password %>" http://localhost:<%= port %><%= path %>/<%= user %>.rw.html',
-    :aem60 => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %>/<%= admin_user %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp',
-    :aem61 => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp',
+    '5.4' => 'curl -f --data rep:password=<%= password %> --user <%= admin_user %>:<%= admin_password %> http://localhost:<%= port %><%= path %>/<%= user %>',
+    '5.5' => 'curl -f --user <%= admin_user %>:<%= admin_password %> -F rep:password="<%= password %>" http://localhost:<%= port %><%= path %>/<%= user %>.rw.html',
+    '5.6' => 'curl -u <%= admin_user %>:<%= admin_password %> -F rep:password="<%= password %>" -F :currentPassword="<%= admin_password %>" http://localhost:<%= port %><%= path %>/<%= user %>.rw.html',
+    '6.0' => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %>/<%= admin_user %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp',
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp',
   },
   :remove_user => {
-    :aem55 => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable= http://localhost:<%= port %><%= path %>/<%= user %>'
+    '5.5' => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable= http://localhost:<%= port %><%= path %>/<%= user %>'
   },
   :add_user => {
-    :aem55 => 'curl -u <%= admin_user %>:<%= admin_password %> -FcreateUser= -FauthorizableId=<%= user %> -Frep:password=<%= password %> -Fmembership=<%= group %> http://localhost:<%= port %>/libs/granite/security/post/authorizables'
+    '5.5' => 'curl -u <%= admin_user %>:<%= admin_password %> -FcreateUser= -FauthorizableId=<%= user %> -Frep:password=<%= password %> -Fmembership=<%= group %> http://localhost:<%= port %>/libs/granite/security/post/authorizables'
   }
 }
 
