@@ -37,7 +37,7 @@ action :add do
   case type
     when :publish
       agent = aem_instance = :publish
-    when :flush 
+    when :flush
       aem_instance = :dispatcher
       agent = 'flush'
       # these are usually on publishers
@@ -54,7 +54,8 @@ action :add do
   if new_resource.dynamic_cluster
     log "Finding replication hosts dynamically..."
     hosts = []
-    search(:node, %Q(role:"#{role}" AND aem_cluster_name:"#{cluster_name}")) do |n|
+    search_criteria = AEM::Helpers.build_cluster_search_criteria(role, cluster_name)
+    search(:node, search_criteria) do |n|
       log "Found host: #{n[:fqdn]}"
       hosts << {
         :ipaddress => n[:ipaddress],
@@ -98,7 +99,7 @@ action :remove do
     when :publish
       aem_instance = :publish
       agent = "publish"
-    when :flush 
+    when :flush
       aem_instance = :dispatcher
       agent = 'flush'
       server = new_resource.server || 'publish'
@@ -114,7 +115,8 @@ action :remove do
   if new_resource.dynamic_cluster
     log "Finding replication hosts dynamically..."
     hosts = []
-    search(:node, %Q(role:"#{role}" AND aem_cluster_name:"#{cluster_name}")) do |n|
+    search_criteria = AEM::Helpers.build_cluster_search_criteria(role, cluster_name)
+    search(:node, search_criteria) do |n|
       log "Found host: #{n[:fqdn]}"
       hosts << {
         :ipaddress => n[:ipaddress],
@@ -128,18 +130,18 @@ action :remove do
 
     if type == :agent || type == :flush_agent
       cmd = ERB.new(node[:aem][:commands][:replicators][type][:list]).result(binding)
-  
+
       log "Creating list of agents wth command: #{cmd}"
       runner = Mixlib::ShellOut.new(cmd)
       runner.run_command
       runner.error!
-  
+
       list = JSON.parse(runner.stdout)
       all_agents = []
       list["agents.#{agent}"].keys.each do |key|
         all_agents << key unless key =~ /jcr/
       end
-  
+
       counter = 0
       agents = []
       hosts.each do |h|
@@ -147,7 +149,7 @@ action :remove do
         agents << "#{agent}#{instance}"
         counter += 1
       end
-  
+
       hosts = all_agents - agents
     end
   end
