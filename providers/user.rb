@@ -52,24 +52,15 @@ end
 
 action :set_password do
 
-
   user,password,admin_user,admin_password,port,aem_version,path,group = set_vars
-
 
   case
   when aem_version.to_f >= 6.1
     path = get_usr_path(port, user, admin_user, admin_password)
-    cmd = ERB.new(node[:aem][:commands][:password][:aem61]).result(binding)
-    Chef::Log.info(cmd)
-  when aem_version.to_f == 6.0
-    cmd = ERB.new(node[:aem][:commands][:password][:aem60]).result(binding)
-  when aem_version.to_f > 5.5
-    cmd = ERB.new(node[:aem][:commands][:password][:aem56]).result(binding)
-  when aem_version.to_f > 5.4
-    cmd = ERB.new(node[:aem][:commands][:password][:aem55]).result(binding)
-  else
-    cmd = ERB.new(node[:aem][:commands][:password][:aem54]).result(binding)
   end
+
+  aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:password], aem_version)
+  cmd = ERB.new(aem_command).result(binding)
 
   runner = Mixlib::ShellOut.new(cmd)
   runner.run_command
@@ -80,11 +71,8 @@ action :remove do
 
   user,password,admin_user,admin_password,port,aem_version,path,group = set_vars
 
-  if aem_version.to_f > 5.4
-    cmd = ERB.new(node[:aem][:commands][:remove_user][:aem55]).result(binding)
-  else
-    raise "Action aem_user :remove is not implemented for AEM < 5.5.  If you know the proper curl command, please implement it in the provider."
-  end
+  aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:remove_user], aem_version)
+  cmd = ERB.new(aem_command).result(binding)
 
   runner = Mixlib::ShellOut.new(cmd)
   runner.run_command
@@ -95,11 +83,8 @@ action :add do
 
   user,password,admin_user,admin_password,port,aem_version,path,group = set_vars
 
-  if aem_version.to_f > 5.4
-    cmd = ERB.new(node[:aem][:commands][:add_user][:aem55]).result(binding)
-  else
-    raise "Action aem_user :add is not implemented for AEM < 5.5.  If you know the proper curl command, please implement it in the provider."
-  end
+  aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:add_user], aem_version)
+  cmd = ERB.new(aem_command).result(binding)
 
   runner = Mixlib::ShellOut.new(cmd)
   runner.run_command

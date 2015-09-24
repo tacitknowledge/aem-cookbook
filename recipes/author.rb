@@ -155,6 +155,7 @@ aem_replicator "delete_extra_replication_agents" do
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
   cluster_name node[:aem][:cluster_name]
   cluster_role node[:aem][:publish][:cluster_role]
+  aem_version node[:aem][:version]
   type :agent
   action :remove
 end
@@ -168,6 +169,7 @@ aem_replicator "create_replication_agents_for_publish_servers" do
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
   cluster_name node[:aem][:cluster_name]
   cluster_role node[:aem][:publish][:cluster_role]
+  aem_version node[:aem][:version]
   type :agent
   action :add
 end
@@ -181,6 +183,7 @@ aem_replicator "replicate_to_publish_servers" do
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
   cluster_name node[:aem][:cluster_name]
   cluster_role node[:aem][:publish][:cluster_role]
+  aem_version node[:aem][:version]
   type :publish
   action :add
 end
