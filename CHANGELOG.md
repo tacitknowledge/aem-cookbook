@@ -1,6 +1,11 @@
+#2.0.0
+* Refactor
+  * Refactor node[:aem][:commands] and providers to allow commands for various AEM versions to be driven by attributes.
+	
 #1.1.17
 * Enhancements
   * Allow cluster search to be more flexible. Defaults to existing role search, but allows for search via recipes/roles within a nodes run_list.
+	
 #1.1.16
 * Fixes
   * Revert back to old mechanism of updating admin password, since the existing way does not converge on the first Chef run.
