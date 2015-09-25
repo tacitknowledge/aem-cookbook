@@ -84,10 +84,26 @@ default[:aem][:commands] = {
     '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -Fplain=<%= password %> -Fverify=<%= password %> -Fold=<%= admin_password %> -FPath=<%= path %> http://localhost:<%= port %>/crx/explorer/ui/setpassword.jsp'
   },
   remove_user: {
-    '5.5' => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable= http://localhost:<%= port %><%= path %>/<%= user %>'
+    '5.5' => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable= http://localhost:<%= port %><%= path %>/<%= user %>',
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable=<%= user %> http://localhost:<%= port %><%= path %>'
   },
   add_user: {
-    '5.5' => 'curl -u <%= admin_user %>:<%= admin_password %> -FcreateUser= -FauthorizableId=<%= user %> -Frep:password=<%= password %> -Fmembership=<%= group %> http://localhost:<%= port %>/libs/granite/security/post/authorizables'
+    '5.5' => 'curl -u <%= admin_user %>:<%= admin_password %> -FcreateUser= -FauthorizableId=<%= user %> -Frep:password=<%= password %> -Fmembership=<%= group %> http://localhost:<%= port %>/libs/granite/security/post/authorizables',
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -FcreateUser=1 -FauthorizableId=<%= user %> -Frep:password=<%= password %> http://localhost:<%= port %>/libs/granite/security/post/authorizables.html'
+  },
+  add_user_to_group: {
+    # Note that prior to 6.1 (possibly 6.0), the add_user command could add both the user AND add the user to a group.
+    # That's no longer the case.
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -FaddMembers=<%= user %> http://localhost:<%= port %><%= path %>.rw.userprops.html'
+  },
+  remove_user_from_group: {
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -FremoveMembers=<%= user %> http://localhost:<%= port %><%= path %>.rw.userprops.html'
+  },
+  add_group: {
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -FauthorizableId=<%= group %> -FcreateGroup=1 http://localhost:<%= port %>/libs/granite/security/post/authorizables.html'
+  },
+  remove_group: {
+    '6.1' => 'curl -u <%= admin_user %>:<%= admin_password %> -FdeleteAuthorizable=1 http://localhost:<%= port %><%= path %>.rw.html'
   }
 }
 
