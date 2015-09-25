@@ -16,24 +16,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#This provider creates a resource that monitors a network port, blocking until
+# This provider creates a resource that monitors a network port, blocking until
 # the port is listening, the service that is supposed to listen on the port has
 # died, or the timeout expires.
 
 action :wait do
   timeout = new_resource.timeout
   expire_time = timeout ? Time.now.to_i + timeout : nil
-  date_cmd = "" #do nothing if timeout is nil
+  date_cmd = '' # do nothing if timeout is nil
   expire_time && date_cmd =
-    "if [ \`date +%s\` -gt #{expire_time} ]; then " +
+    "if [ \`date +%s\` -gt #{expire_time} ]; then " \
       "echo 'Timeout exceeded'; exit 2; fi"
   status_cmd =
-    "if ! #{new_resource.status_command}; then " +
+    "if ! #{new_resource.status_command}; then " \
       "echo 'Service has died'; exit 1; fi"
-  netstat_opts = new_resource.protocol == "udp" ? "-uln" : "-tln"
+  netstat_opts = new_resource.protocol == 'udp' ? '-uln' : '-tln'
 
-  bash "wait_for_port" do
-    user "root"
+  bash 'wait_for_port' do
+    user 'root'
     code <<-EOH
       while ! netstat #{netstat_opts} | grep ":#{new_resource.port} "
         do

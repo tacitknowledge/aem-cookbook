@@ -45,27 +45,27 @@ unless node['aem']['version']
   Chef::Application.fatal! 'aem.version attribute cannot be nil. Please populate that attribute.'
 end
 
-include_recipe "java"
-package "unzip"
+include_recipe 'java'
+package 'unzip'
 
-if node[:aem][:use_yum] then
+if node[:aem][:use_yum]
   package 'aem' do
     version node[:aem][:version]
     action :install
   end
 else
-  user "crx" do
-    comment "crx/aem role user"
+  user 'crx' do
+    comment 'crx/aem role user'
     system true
-    shell "/bin/bash"
-    home "/home/crx"
-    supports :manage_home => true
+    shell '/bin/bash'
+    home '/home/crx'
+    supports manage_home: true
     action :create
   end
 end
 
-directory "/home/crx/.ssh" do
-  owner "crx"
-  group "crx"
+directory '/home/crx/.ssh' do
+  owner 'crx'
+  group 'crx'
   mode 0700
 end

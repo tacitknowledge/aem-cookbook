@@ -16,10 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe "aem::_base_aem_setup"
+include_recipe 'aem::_base_aem_setup'
 
 unless node[:aem][:use_yum]
-  aem_jar_installer "publish" do
+  aem_jar_installer 'publish' do
     download_url node[:aem][:download_url]
     default_context node[:aem][:publish][:default_context]
     port node[:aem][:publish][:port]
@@ -35,12 +35,12 @@ unless node[:aem][:license_url].nil?
   end
 end
 
-if node[:aem][:version].to_f > 5.4 then
+if node[:aem][:version].to_f > 5.4
   node.set[:aem][:publish][:runnable_jar] = "aem-publish-p#{node[:aem][:publish][:port]}.jar"
 end
 
-aem_init "aem-publish" do
-  service_name "aem-publish"
+aem_init 'aem-publish' do
+  service_name 'aem-publish'
   default_context node[:aem][:publish][:default_context]
   runnable_jar node[:aem][:publish][:runnable_jar]
   base_dir node[:aem][:publish][:base_dir]
@@ -49,10 +49,10 @@ aem_init "aem-publish" do
   action :add
 end
 
-service "aem-publish" do
-  #init script returns 0 for status no matter what
-  status_command "service aem-publish status | grep running"
-  supports :status => true, :stop => true, :start => true, :restart => true
+service 'aem-publish' do
+  # init script returns 0 for status no matter what
+  status_command 'service aem-publish status | grep running'
+  supports status: true, stop: true, start: true, restart: true
   action [:enable, :start]
 end
 
@@ -60,7 +60,7 @@ if node[:aem][:version].to_f > 5.4
   node[:aem][:publish][:validation_urls].each do |url|
     aem_url_watcher url do
       validation_url url
-      status_command "service aem-publish status | grep running"
+      status_command 'service aem-publish status | grep running'
       max_attempts node[:aem][:publish][:startup][:max_attempts]
       wait_between_attempts node[:aem][:publish][:startup][:wait_between_attempts]
       user node[:aem][:publish][:admin_user]
@@ -69,8 +69,8 @@ if node[:aem][:version].to_f > 5.4
     end
   end
 else
-  aem_port_watcher "4503" do
-    status_command "service aem-publish status | grep running"
+  aem_port_watcher '4503' do
+    status_command 'service aem-publish status | grep running'
     action :wait
   end
 end
@@ -90,49 +90,49 @@ unless node[:aem][:publish][:new_admin_password].nil?
   node.set[:aem][:publish][:new_admin_password] = nil
 end
 
-#delete the privileged users from geometrixx, if they're still there.
+# delete the privileged users from geometrixx, if they're still there.
 node[:aem][:geometrixx_priv_users].each do |user|
   aem_user user do
     admin_user node[:aem][:publish][:admin_user]
     admin_password lazy { node[:aem][:publish][:admin_password] }
     port node[:aem][:publish][:port]
     aem_version node[:aem][:version]
-    path "/home/users/geometrixx"
+    path '/home/users/geometrixx'
     action :remove
   end
 end
 
-aem_ldap "publish" do
+aem_ldap 'publish' do
   options node[:aem][:publish][:ldap][:options]
-  action node[:aem][:publish][:ldap][:enabled]? :enable : :disable
+  action node[:aem][:publish][:ldap][:enabled] ? :enable : :disable
 end
 
-if node[:aem][:version].to_f < 5.5 then
+if node[:aem][:version].to_f < 5.5
   web_inf_dir = "#{node[:aem][:publish][:base_dir]}/server/runtime/0/_crx/WEB-INF"
   log "ABOUT TO CREATE DIR: #{web_inf_dir}"
-  user = node[:aem][:aem_options]["RUNAS_USER"]
+  user = node[:aem][:aem_options]['RUNAS_USER']
   directory web_inf_dir do
     owner user
     group user
-    mode "0755"
+    mode '0755'
     action :create
     recursive true
   end
   template "#{web_inf_dir}/web.xml" do
-    source "web.xml.erb"
+    source 'web.xml.erb'
     owner user
     group user
-    mode "0644"
+    mode '0644'
     action :create
-    notifies :restart, "service[aem-publish]"
+    notifies :restart, 'service[aem-publish]'
   end
 end
 
-#If we're using the aem_package provider to deploy, do it now
+# If we're using the aem_package provider to deploy, do it now
 node[:aem][:publish][:deploy_pkgs].each do |pkg|
   aem_package pkg[:name] do
     version pkg[:version]
-    aem_instance "publish"
+    aem_instance 'publish'
     package_url pkg[:url]
     update pkg[:update]
     user node[:aem][:publish][:admin_user]
@@ -146,8 +146,8 @@ node[:aem][:publish][:deploy_pkgs].each do |pkg|
   end
 end
 
-#Create cache flush agents
-aem_replicator "create_flush_agents" do
+# Create cache flush agents
+aem_replicator 'create_flush_agents' do
   local_user node[:aem][:publish][:admin_user]
   local_password lazy { node[:aem][:publish][:admin_password] }
   local_port node[:aem][:publish][:port]
@@ -160,8 +160,8 @@ aem_replicator "create_flush_agents" do
   action :add
 end
 
-#Set up cache flush agents
-aem_replicator "flush_cache" do
+# Set up cache flush agents
+aem_replicator 'flush_cache' do
   local_user node[:aem][:publish][:admin_user]
   local_password lazy { node[:aem][:publish][:admin_password] }
   local_port node[:aem][:publish][:port]

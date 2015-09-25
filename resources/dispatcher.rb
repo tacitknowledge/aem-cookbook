@@ -18,11 +18,11 @@
 
 actions :install
 
-attribute :dispatcher_mod_name, :kind_of => String, :name_attribute => true
-attribute :package_install, :kind_of => [ TrueClass, FalseClass ], :default => false
-attribute :dispatcher_uri, :kind_of => String, :default => nil
-attribute :dispatcher_checksum, :kind_of => String, :default => nil
-attribute :dispatcher_version, :kind_of => String, :default => nil
-attribute :dispatcher_file_cookbook, :kind_of => String, :default => nil
-attribute :webserver_type, :kind_of => String, :default => nil
-attribute :apache_libexecdir, :kind_of => String, :default => nil
+attribute :dispatcher_mod_name, kind_of: String, name_attribute: true
+attribute :package_install, kind_of: [TrueClass, FalseClass], default: false
+attribute :dispatcher_uri, kind_of: String, default: nil
+attribute :dispatcher_checksum, kind_of: String, default: nil
+attribute :dispatcher_version, kind_of: String, default: nil
+attribute :dispatcher_file_cookbook, kind_of: String, default: nil
+attribute :webserver_type, kind_of: String, default: nil
+attribute :apache_libexecdir, kind_of: String, default: nil

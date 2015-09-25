@@ -16,10 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe "aem::_base_aem_setup"
+include_recipe 'aem::_base_aem_setup'
 
 unless node[:aem][:use_yum]
-  aem_jar_installer "author" do
+  aem_jar_installer 'author' do
     download_url node[:aem][:download_url]
     default_context node[:aem][:author][:default_context]
     port node[:aem][:author][:port]
@@ -35,12 +35,12 @@ unless node[:aem][:license_url].nil?
   end
 end
 
-if node[:aem][:version].to_f > 5.4 then
+if node[:aem][:version].to_f > 5.4
   node.set[:aem][:author][:runnable_jar] = "aem-author-p#{node[:aem][:author][:port]}.jar"
 end
 
-aem_init "aem-author" do
-  service_name "aem-author"
+aem_init 'aem-author' do
+  service_name 'aem-author'
   default_context node[:aem][:author][:default_context]
   runnable_jar node[:aem][:author][:runnable_jar]
   base_dir node[:aem][:author][:base_dir]
@@ -49,18 +49,18 @@ aem_init "aem-author" do
   action :add
 end
 
-service "aem-author" do
-  #init script returns 0 for status no matter what
-  status_command "service aem-author status | grep running"
-  supports :status => true, :stop => true, :start => true, :restart => true
-  action [ :enable, :start ]
+service 'aem-author' do
+  # init script returns 0 for status no matter what
+  status_command 'service aem-author status | grep running'
+  supports status: true, stop: true, start: true, restart: true
+  action [:enable, :start]
 end
 
 if node[:aem][:version].to_f > 5.4
   node[:aem][:author][:validation_urls].each do |url|
     aem_url_watcher url do
       validation_url url
-      status_command "service aem-author status | grep running"
+      status_command 'service aem-author status | grep running'
       max_attempts node[:aem][:author][:startup][:max_attempts]
       wait_between_attempts node[:aem][:author][:startup][:wait_between_attempts]
       user node[:aem][:author][:admin_user]
@@ -69,8 +69,8 @@ if node[:aem][:version].to_f > 5.4
     end
   end
 else
-  aem_port_watcher "4502" do
-    status_command "service aem-author status | grep running"
+  aem_port_watcher '4502' do
+    status_command 'service aem-author status | grep running'
     action :wait
   end
 end
@@ -90,48 +90,48 @@ unless node[:aem][:author][:new_admin_password].nil?
   node.set[:aem][:author][:new_admin_password] = nil
 end
 
-#delete the privileged users from geometrixx, if they're still there.
+# delete the privileged users from geometrixx, if they're still there.
 node[:aem][:geometrixx_priv_users].each do |user|
   aem_user user do
     admin_user node[:aem][:author][:admin_user]
     admin_password lazy { node[:aem][:author][:admin_password] }
     port node[:aem][:author][:port]
     aem_version node[:aem][:version]
-    path "/home/users/geometrixx"
+    path '/home/users/geometrixx'
     action :remove
   end
 end
 
-aem_ldap "author" do
+aem_ldap 'author' do
   options node[:aem][:author][:ldap][:options]
-  action node[:aem][:author][:ldap][:enabled]? :enable : :disable
+  action node[:aem][:author][:ldap][:enabled] ? :enable : :disable
 end
 
-if node[:aem][:version].to_f < 5.5 then
+if node[:aem][:version].to_f < 5.5
   web_inf_dir = "#{node[:aem][:author][:base_dir]}/server/runtime/0/_crx/WEB-INF"
-  user = node[:aem][:aem_options]["RUNAS_USER"]
+  user = node[:aem][:aem_options]['RUNAS_USER']
   directory web_inf_dir do
     owner user
     group user
-    mode "0755"
+    mode '0755'
     action :create
     recursive true
   end
   template "#{web_inf_dir}/web.xml" do
-    source "web.xml.erb"
+    source 'web.xml.erb'
     owner user
     group user
-    mode "0644"
+    mode '0644'
     action :create
-    notifies :restart, "service[aem-author]"
+    notifies :restart, 'service[aem-author]'
   end
 end
 
-#If we're using the aem_package provider to deploy, do it now
+# If we're using the aem_package provider to deploy, do it now
 node[:aem][:author][:deploy_pkgs].each do |pkg|
   aem_package pkg[:name] do
     version pkg[:version]
-    aem_instance "author"
+    aem_instance 'author'
     package_url pkg[:url]
     update pkg[:update]
     user node[:aem][:author][:admin_user]
@@ -145,9 +145,8 @@ node[:aem][:author][:deploy_pkgs].each do |pkg|
   end
 end
 
-
-#Remove author agents that aren't listed
-aem_replicator "delete_extra_replication_agents" do
+# Remove author agents that aren't listed
+aem_replicator 'delete_extra_replication_agents' do
   local_user node[:aem][:author][:admin_user]
   local_password lazy { node[:aem][:author][:admin_password] }
   local_port node[:aem][:author][:port]
@@ -160,8 +159,8 @@ aem_replicator "delete_extra_replication_agents" do
   action :remove
 end
 
-#Set up author agents
-aem_replicator "create_replication_agents_for_publish_servers" do
+# Set up author agents
+aem_replicator 'create_replication_agents_for_publish_servers' do
   local_user node[:aem][:author][:admin_user]
   local_password lazy { node[:aem][:author][:admin_password] }
   local_port node[:aem][:author][:port]
@@ -174,8 +173,8 @@ aem_replicator "create_replication_agents_for_publish_servers" do
   action :add
 end
 
-#Set up replication agents
-aem_replicator "replicate_to_publish_servers" do
+# Set up replication agents
+aem_replicator 'replicate_to_publish_servers' do
   local_user node[:aem][:author][:admin_user]
   local_password lazy { node[:aem][:author][:admin_password] }
   local_port node[:aem][:author][:port]

@@ -20,8 +20,8 @@
 
 actions :install, :remove
 
-attribute :name, :kind_of => String, :name_attribute => true, :required => true
-attribute :download_url, :kind_of => String, :default => nil
-attribute :base_dir, :kind_of => String, :default => nil
-attribute :default_context, :kind_of => String, :default => nil
-attribute :port, :kind_of => String, :default => nil
+attribute :name, kind_of: String, name_attribute: true, required: true
+attribute :download_url, kind_of: String, default: nil
+attribute :base_dir, kind_of: String, default: nil
+attribute :default_context, kind_of: String, default: nil
+attribute :port, kind_of: String, default: nil
