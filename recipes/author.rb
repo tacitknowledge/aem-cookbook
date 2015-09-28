@@ -49,6 +49,14 @@ aem_init "aem-author" do
   action :add
 end
 
+if node[:aem][:install_cfg] then
+  aem_install_cfg "install_cfg" do
+    base_dir node[:aem][:author][:base_dir]
+    configs node[:aem][:install_cfg]
+    action :add
+  end
+end
+
 service "aem-author" do
   #init script returns 0 for status no matter what
   status_command "service aem-author status | grep running"
