@@ -1,3 +1,7 @@
+#2.1.0
+* Refactor
+  * Rubocop and other minor improvements
+
 #2.0.0
 * Refactor
   * Refactor node[:aem][:commands] and providers to allow commands for various AEM versions to be driven by attributes.
