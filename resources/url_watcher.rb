@@ -18,11 +18,11 @@
 
 actions :wait
 
-attribute :name, :kind_of => String, :name_attribute => true
-attribute :validation_url, :kind_of => String, :default => nil, :required => true
-attribute :status_command, :kind_of => String, :default => nil, :required => true
-attribute :max_attempts, :kind_of => Integer, :default => nil, :required => true
-attribute :wait_between_attempts, :kind_of => Integer, :default => nil, :required => true
-attribute :user, :kind_of => String, :default => nil
-attribute :password, :kind_of => String, :default => nil
-attribute :match_string, :kind_of => String, :default => nil
+attribute :name, kind_of: String, name_attribute: true
+attribute :validation_url, kind_of: String, default: nil, required: true
+attribute :status_command, kind_of: String, default: nil, required: true
+attribute :max_attempts, kind_of: Integer, default: nil, required: true
+attribute :wait_between_attempts, kind_of: Integer, default: nil, required: true
+attribute :user, kind_of: String, default: nil
+attribute :password, kind_of: String, default: nil
+attribute :match_string, kind_of: String, default: nil

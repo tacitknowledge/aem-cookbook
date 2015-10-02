@@ -31,8 +31,8 @@ class AEM
         # + - && || ! ( ) { } [ ] ^ " ~ * ? : \
         # See http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Escaping Special Characters
         role = role_name.gsub(/\[(.*)\]/, '\[\1\]').gsub(/:/, '\:')
-        role_search = role.include?('[') ? %Q{run_list:"#{role}"} : %Q{role:"#{role}"}
-        %Q(#{role_search} AND aem_cluster_name:"#{cluster_name}")
+        role_search = role.include?('[') ? %(run_list:"#{role}") : %(role:"#{role}")
+        %(#{role_search} AND aem_cluster_name:"#{cluster_name}")
       end
 
       # This method will return the command that corresponds to the closest matching version number as long as a
@@ -48,7 +48,7 @@ class AEM
         matching_command = nil
         commands.each do |version, command|
           potential_version = Gem::Version.new(version)
-          if current_aem_version >= potential_version && (matching_version == nil || potential_version > matching_version)
+          if current_aem_version >= potential_version && (matching_version.nil? || potential_version > matching_version)
             matching_version = potential_version
             matching_command = command
           end

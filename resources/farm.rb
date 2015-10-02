@@ -18,23 +18,23 @@
 
 actions :add, :remove
 
-attribute :farm_name, :kind_of => String, :name_attribute => true
-attribute :client_headers, :kind_of => Array, :default => nil
-attribute :virtual_hosts, :kind_of => Array, :default => nil
-attribute :renders, :kind_of => Array, :default => nil
-attribute :filter_rules, :kind_of => Hash, :default => nil
-attribute :cache_root, :kind_of => String, :default => nil
-attribute :farm_dir, :kind_of => String, :default => nil
-attribute :cache_rules, :kind_of => Hash, :default => nil
-attribute :invalidation_rules, :kind_of => Hash, :default => nil
-attribute :allowed_clients, :kind_of => Hash, :default => nil
-attribute :ignore_url_params, :kind_of => Hash, :default => nil
-attribute :statistics, :kind_of => Array, :default => nil
-attribute :cache_opts, :kind_of => Array, :default => nil
-attribute :session_mgmt, :kind_of => Hash, :default => nil
-attribute :enable_session_mgmt, :kind_of => [ TrueClass, FalseClass ], :default => false
-attribute :dynamic_cluster, :kind_of => [ TrueClass, FalseClass ], :default => false
-attribute :cluster_name, :kind_of => String, :default => nil
-attribute :cluster_role, :kind_of => String, :default => nil
-attribute :cluster_type, :kind_of => String, :default => nil
-attribute :render_timeout, :kind_of => Integer, :default => 0
+attribute :farm_name, kind_of: String, name_attribute: true
+attribute :client_headers, kind_of: Array, default: nil
+attribute :virtual_hosts, kind_of: Array, default: nil
+attribute :renders, kind_of: Array, default: nil
+attribute :filter_rules, kind_of: Hash, default: nil
+attribute :cache_root, kind_of: String, default: nil
+attribute :farm_dir, kind_of: String, default: nil
+attribute :cache_rules, kind_of: Hash, default: nil
+attribute :invalidation_rules, kind_of: Hash, default: nil
+attribute :allowed_clients, kind_of: Hash, default: nil
+attribute :ignore_url_params, kind_of: Hash, default: nil
+attribute :statistics, kind_of: Array, default: nil
+attribute :cache_opts, kind_of: Array, default: nil
+attribute :session_mgmt, kind_of: Hash, default: nil
+attribute :enable_session_mgmt, kind_of: [TrueClass, FalseClass], default: false
+attribute :dynamic_cluster, kind_of: [TrueClass, FalseClass], default: false
+attribute :cluster_name, kind_of: String, default: nil
+attribute :cluster_role, kind_of: String, default: nil
+attribute :cluster_type, kind_of: String, default: nil
+attribute :render_timeout, kind_of: Integer, default: 0

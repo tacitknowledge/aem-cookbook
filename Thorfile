@@ -11,11 +11,10 @@ begin
   require 'kitchen/thor_tasks'
   Kitchen::ThorTasks.new
 rescue LoadError
-  puts ">>>>> Kitchen gem not loaded, omitting tasks" unless ENV['CI']
+  puts '>>>>> Kitchen gem not loaded, omitting tasks' unless ENV['CI']
 end
 
 class Default < Thor
-
   include Thor::RakeCompat
 
   desc 'foodcritic', 'Lint Chef cookbooks'
@@ -38,8 +37,8 @@ class Default < Thor
   end
 
   desc 'publish', 'Publish cookbook to supermarket.getchef.com'
-  method_options :username => :string, :required => true, :desc => 'Chef Supermarket username'
-  method_options :client_pem => :string, :required => true, :desc => 'Path to client.pem associated with Chef Supermarket'
+  method_options username: :string, required: true, desc: 'Chef Supermarket username'
+  method_options client_pem: :string, required: true, desc: 'Path to client.pem associated with Chef Supermarket'
   def publish
     require 'stove/cli'
 

@@ -16,23 +16,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#This provider creates a resource that monitors an httpd url, blocking until
+# This provider creates a resource that monitors an httpd url, blocking until
 # the url loads correctly, the service that is supposed to serve the url has
 # died, or the timeout expires.
 action :wait do
-
   wait_between_attempts = new_resource.wait_between_attempts
   validation_url = new_resource.validation_url
   max_attempts = new_resource.max_attempts
-  creds = ""
+  creds = ''
   status_cmd =
-    "if ! #{new_resource.status_command}; then " +
+    "if ! #{new_resource.status_command}; then " \
       "echo 'Service has died'; exit 1; fi"
   if new_resource.user && new_resource.password
     creds = "-u #{new_resource.user}:#{new_resource.password}"
   end
   if new_resource.match_string
-    curl_validation_command = %Q(curl #{creds} --silent #{validation_url} | grep "#{new_resource.match_string}")
+    curl_validation_command = %(curl #{creds} --silent #{validation_url} | grep "#{new_resource.match_string}")
   else
     curl_validation_command = "curl #{creds} -o /dev/null --silent --head --write-out '%{http_code}' #{validation_url} | grep 200"
   end

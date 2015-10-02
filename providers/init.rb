@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#This provider creates an init script for AEM
+# This provider creates an init script for AEM
 
 action :add do
   vars = {}
@@ -25,7 +25,7 @@ action :add do
     :aem_options, :default_context, :runnable_jar, :base_dir, :jvm_opts, :jar_opts
   ]
 
-  #take value passed to provider, or node attribute
+  # take value passed to provider, or node attribute
   var_list.each do |var|
     vars[var] = new_resource.send(var) || node[:aem][var]
   end
@@ -34,6 +34,6 @@ action :add do
     source 'init.erb'
     mode '0755'
     variables(vars)
-    notifies :restart, resources(:service => "#{service_name}")
+    notifies :restart, resources(service: "#{service_name}")
   end
 end

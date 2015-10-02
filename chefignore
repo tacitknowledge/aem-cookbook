@@ -51,8 +51,11 @@ spec/*
 spec/fixtures/*
 test/*
 features/*
+examples/*
 Guardfile
 Procfile
+test/*
+spec/*
 
 # SCM #
 #######

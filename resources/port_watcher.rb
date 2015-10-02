@@ -18,8 +18,8 @@
 
 actions :wait
 
-attribute :port, :kind_of => String, :name_attribute => true
-attribute :protocol, :kind_of => String, :default => "tcp"
-attribute :status_command, :kind_of => String, :default => nil, :required => true
-#timeout is in seconds
-attribute :timeout, :kind_of => Integer, :default => nil
+attribute :port, kind_of: String, name_attribute: true
+attribute :protocol, kind_of: String, default: 'tcp'
+attribute :status_command, kind_of: String, default: nil, required: true
+# timeout is in seconds
+attribute :timeout, kind_of: Integer, default: nil

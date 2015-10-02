@@ -20,10 +20,10 @@
 
 actions :add
 
-attribute :service_name, :kind_of => String, :name_attribute => true, :required => true
-attribute :aem_options, :kind_of => Hash, :default => nil
-attribute :default_context, :kind_of => String, :default => nil
-attribute :runnable_jar, :kind_of => String, :default => nil
-attribute :base_dir, :kind_of => String, :default => nil
-attribute :jvm_opts, :kind_of => Hash, :default => nil
-attribute :jar_opts, :kind_of => Array, :default => nil
+attribute :service_name, kind_of: String, name_attribute: true, required: true
+attribute :aem_options, kind_of: Hash, default: nil
+attribute :default_context, kind_of: String, default: nil
+attribute :runnable_jar, kind_of: String, default: nil
+attribute :base_dir, kind_of: String, default: nil
+attribute :jvm_opts, kind_of: Hash, default: nil
+attribute :jar_opts, kind_of: Array, default: nil

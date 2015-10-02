@@ -34,7 +34,7 @@ action :install do
   else
     dispatcher_file_path = "dispatcher-#{webserver_type}-#{dispatcher_version}.so"
     local_file_path = "#{apache_libexecdir}/#{dispatcher_file_path}"
-    service_name = "service[apache2]"
+    service_name = 'service[apache2]'
 
     unless dispatcher_uri.nil?
       require 'uri'
@@ -47,8 +47,8 @@ action :install do
           source dispatcher_uri
           checksum dispatcher_checksum
           mode 0644
-          owner "root"
-          group "root"
+          owner 'root'
+          group 'root'
           action :create
           notifies :restart, service_name
         end
@@ -67,8 +67,8 @@ action :install do
       cookbook_file local_file_path do
         source "#{dispatcher_file_path}"
         mode 0644
-        owner "root"
-        group "root"
+        owner 'root'
+        group 'root'
         cookbook dispatcher_file_cookbook
         action :create
         notifies :restart, service_name
