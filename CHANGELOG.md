@@ -1,3 +1,8 @@
+#2.2.0
+* Enhancements
+  * Add new group provider.
+  * For AEM 6.1+, use group provider within user provider to add user to a group (if provided).
+
 #2.1.0
 * Refactor
   * Rubocop and other minor improvements
