@@ -35,6 +35,14 @@ unless node[:aem][:license_url].nil?
   end
 end
 
+unless node[:aem][:license_customer_name].nil? && node[:aem][:license_download_id].nil?
+  template "#{node[:aem][:publish][:default_context]}/license.properties" do
+    source 'license.properties.erb'
+    sensitive true
+    mode 0644
+  end
+end
+
 if node[:aem][:version].to_f > 5.4
   node.set[:aem][:publish][:runnable_jar] = "aem-publish-p#{node[:aem][:publish][:port]}.jar"
 end
