@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-node.default[:apache][:enable_default_site] = false
+node.default[:apache][:default_site_enable] = false
 
 include_recipe 'apache2'
 include_recipe 'apache2::mod_ssl'
@@ -33,10 +33,12 @@ aem_dispatcher 'mod_dispatcher.so' do
   action :install
 end
 
-# if we want to support non-apache, we'll need to do some more work here
-apache_module 'dispatcher' do
-  # this will use the template mods/dispatcher.conf.erb
-  conf true
+
+directory "#{node[:apache][:dir]}/conf" do
+  owner 'root'
+  group node[:apache][:root_group]
+  mode '0775'
+  action :create
 end
 
 # this is where our provider will put the farm config files
@@ -66,6 +68,12 @@ template "#{node[:apache][:dir]}/conf/dispatcher.any" do
   mode '0664'
   action :create
   notifies :restart, 'service[apache2]'
+end
+
+# if we want to support non-apache, we'll need to do some more work here
+apache_module 'dispatcher' do
+  # this will use the template mods/dispatcher.conf.erb
+  conf true
 end
 
 # if we are including from another cookbook, we likely want to configure our own.
