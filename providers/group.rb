@@ -22,9 +22,9 @@ def set_vars
   admin_password = new_resource.admin_password
   port = new_resource.port
   aem_version = new_resource.aem_version
-  #By default, AEM will put groups in a folder named for their first letter (prior to AEM 6.x)
+  # By default, AEM will put groups in a folder named for their first letter (prior to AEM 6.x)
   path = new_resource.path || "/home/groups/#{group[0]}"
-  [ group, admin_user, admin_password, port, aem_version, path ]
+  [group, admin_user, admin_password, port, aem_version, path]
 end
 
 def curl(url, user, password)

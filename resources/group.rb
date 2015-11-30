@@ -16,10 +16,10 @@
 
 actions :add, :remove, :add_user, :remove_user
 
-attribute :group, :kind_of => String, :name_attribute => true
-attribute :admin_user, :kind_of => String, :default => nil
-attribute :admin_password, :kind_of => String, :default => nil
-attribute :port, :kind_of => String, :default => nil
-attribute :aem_version, :kind_of => String, :default => node[:aem][:version]
-attribute :path, :kind_of => String, :default => nil # the path to the group in AEM
-attribute :user, :kind_of => String, :default => nil
+attribute :group, kind_of: String, name_attribute: true
+attribute :admin_user, kind_of: String, default: nil
+attribute :admin_password, kind_of: String, default: nil
+attribute :port, kind_of: String, default: nil
+attribute :aem_version, kind_of: String, default: node[:aem][:version]
+attribute :path, kind_of: String, default: nil # the path to the group in AEM
+attribute :user, kind_of: String, default: nil
