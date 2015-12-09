@@ -27,6 +27,14 @@ unless node[:aem][:use_yum]
   end
 end
 
+unless node[:aem][:license_customer_name].nil? && node[:aem][:license_download_id].nil?
+  template "#{node[:aem][:author][:default_context]}/license.properties" do
+    source 'license.properties.erb'
+    sensitive true
+    mode 0644
+  end
+end
+
 unless node[:aem][:license_url].nil?
   remote_file "#{node[:aem][:author][:default_context]}/license.properties" do
     source "#{node[:aem][:license_url]}"
@@ -146,6 +154,7 @@ node[:aem][:author][:deploy_pkgs].each do |pkg|
 end
 
 # Remove author agents that aren't listed
+=begin
 aem_replicator 'delete_extra_replication_agents' do
   local_user node[:aem][:author][:admin_user]
   local_password lazy { node[:aem][:author][:admin_password] }
@@ -158,7 +167,7 @@ aem_replicator 'delete_extra_replication_agents' do
   type :agent
   action :remove
 end
-
+=end
 # Set up author agents
 aem_replicator 'create_replication_agents_for_publish_servers' do
   local_user node[:aem][:author][:admin_user]

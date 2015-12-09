@@ -50,7 +50,7 @@ action :install do
           owner 'root'
           group 'root'
           action :create
-          notifies :restart, service_name
+          notifies :restart, service_name, :delayed
         end
       else
         # extract out the module.so
