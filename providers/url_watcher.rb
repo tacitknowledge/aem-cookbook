@@ -31,9 +31,9 @@ action :wait do
     creds = "-u #{new_resource.user}:#{new_resource.password}"
   end
   if new_resource.match_string
-    curl_validation_command = %(curl #{creds} --silent #{validation_url} | grep "#{new_resource.match_string}")
+    curl_validation_command = %(curl #{creds} -L --silent #{validation_url} | grep "#{new_resource.match_string}")
   else
-    curl_validation_command = "curl #{creds} -o /dev/null --silent --head --write-out '%{http_code}' #{validation_url} | grep 200"
+    curl_validation_command = "curl #{creds} -L -o /dev/null --silent --head --write-out '%{http_code}' #{validation_url} | grep 200"
   end
 
   bash "wait for URL: #{validation_url}" do

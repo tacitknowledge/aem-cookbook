@@ -27,6 +27,9 @@ default[:aem][:jar_name] = nil
 default[:aem][:use_yum] = false
 default[:aem][:download_url] = nil
 default[:aem][:license_url] = nil
+default[:aem][:license_customer_name] = nil
+default[:aem][:license_download_id] = nil
+default[:aem][:license_product_name] = 'Adobe CQ5'
 default[:aem][:base_dir] = '/opt/aem'
 default[:aem][:cluster_name] = nil
 default[:aem][:geometrixx_priv_users] = [
@@ -140,6 +143,10 @@ default[:aem][:author] = {
     #    :action => [ :upload, :install, :activate ]
     #  }
   ],
+  install_bundles: [],
+  delete_bundles: [],
+  restart_bundles: [],
+
   # You changed these, right?
   admin_user: 'admin',
   admin_password: 'admin',
@@ -185,7 +192,10 @@ default[:aem][:publish] = {
     #  :password => "the admin password on the remote"
     # }
   ],
-  find_cache_hosts_dynamically: false
+  find_cache_hosts_dynamically: false,
+  install_bundles: [],
+  delete_bundles: [],
+  restart_bundles: []
 }
 default[:aem][:publish][:startup][:max_attempts] = 20
 default[:aem][:publish][:startup][:wait_between_attempts] = 30

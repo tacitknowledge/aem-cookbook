@@ -35,6 +35,14 @@ unless node[:aem][:license_url].nil?
   end
 end
 
+unless node[:aem][:license_customer_name].nil? && node[:aem][:license_download_id].nil?
+  template "#{node[:aem][:publish][:default_context]}/license.properties" do
+    source 'license.properties.erb'
+    sensitive true
+    mode 0644
+  end
+end
+
 if node[:aem][:version].to_f > 5.4
   node.set[:aem][:publish][:runnable_jar] = "aem-publish-p#{node[:aem][:publish][:port]}.jar"
 end
@@ -172,4 +180,39 @@ aem_replicator 'flush_cache' do
   aem_version node[:aem][:version]
   type :flush
   action :add
+end
+
+# If we are having bundles to install, do it now
+node[:aem][:publish][:install_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    version bundle[:version]
+    aem_instance 'publish'
+    bundle_url bundle[:url]
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
+end
+
+# If we are having bundles to delete, do it now
+node[:aem][:publish][:delete_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'publish'
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
+end
+
+# If we are having bundles to restart, do it now
+node[:aem][:publish][:restart_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'publish'
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
 end
