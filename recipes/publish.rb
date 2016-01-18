@@ -181,3 +181,38 @@ aem_replicator 'flush_cache' do
   type :flush
   action :add
 end
+
+# If we are having bundles to install, do it now
+node[:aem][:publish][:install_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    version bundle[:version]
+    aem_instance 'publish'
+    bundle_url bundle[:url]
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
+end
+
+# If we are having bundles to delete, do it now
+node[:aem][:publish][:delete_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'publish'
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
+end
+
+# If we are having bundles to restart, do it now
+node[:aem][:publish][:restart_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'publish'
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
+end

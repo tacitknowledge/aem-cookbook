@@ -143,6 +143,10 @@ default[:aem][:author] = {
     #    :action => [ :upload, :install, :activate ]
     #  }
   ],
+  install_bundles: [],
+  delete_bundles: [],
+  restart_bundles: [],
+
   # You changed these, right?
   admin_user: 'admin',
   admin_password: 'admin',
@@ -188,7 +192,10 @@ default[:aem][:publish] = {
     #  :password => "the admin password on the remote"
     # }
   ],
-  find_cache_hosts_dynamically: false
+  find_cache_hosts_dynamically: false,
+  install_bundles: [],
+  delete_bundles: [],
+  restart_bundles: []
 }
 default[:aem][:publish][:startup][:max_attempts] = 20
 default[:aem][:publish][:startup][:wait_between_attempts] = 30

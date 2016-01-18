@@ -135,24 +135,6 @@ if node[:aem][:version].to_f < 5.5
   end
 end
 
-# If we're using the aem_package provider to deploy, do it now
-node[:aem][:author][:deploy_pkgs].each do |pkg|
-  aem_package pkg[:name] do
-    version pkg[:version]
-    aem_instance 'author'
-    package_url pkg[:url]
-    update pkg[:update]
-    user node[:aem][:author][:admin_user]
-    password lazy { node[:aem][:author][:admin_password] }
-    port node[:aem][:author][:port]
-    group_id pkg[:group_id]
-    recursive pkg[:recursive]
-    properties_file pkg[:properties_file]
-    version_pattern pkg[:version_pattern]
-    action pkg[:action]
-  end
-end
-
 # Remove author agents that aren't listed
 =begin
 aem_replicator 'delete_extra_replication_agents' do
@@ -194,4 +176,57 @@ aem_replicator 'replicate_to_publish_servers' do
   aem_version node[:aem][:version]
   type :publish
   action :add
+end
+
+# If we're using the aem_package provider to deploy, do it now
+node[:aem][:author][:deploy_pkgs].each do |pkg|
+  aem_package pkg[:name] do
+    version pkg[:version]
+    aem_instance 'author'
+    package_url pkg[:url]
+    update pkg[:update]
+    user node[:aem][:author][:admin_user]
+    password lazy { node[:aem][:author][:admin_password] }
+    port node[:aem][:author][:port]
+    group_id pkg[:group_id]
+    recursive pkg[:recursive]
+    properties_file pkg[:properties_file]
+    version_pattern pkg[:version_pattern]
+    action pkg[:action]
+  end
+end
+
+# If we are having bundles to delete, do it now
+node[:aem][:author][:delete_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'author'
+    user node[:aem][:author][:admin_user]
+    password lazy { node[:aem][:author][:admin_password] }
+    port node[:aem][:author][:port]
+    action bundle[:action]
+  end
+end
+
+# If we are having bundles to deploy, do it now
+node[:aem][:author][:install_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    version bundle[:version]
+    aem_instance 'author'
+    bundle_url bundle[:url]
+    user node[:aem][:author][:admin_user]
+    password lazy { node[:aem][:author][:admin_password] }
+    port node[:aem][:author][:port]
+    action bundle[:action]
+  end
+end
+
+# If we are having bundles to restart, do it now
+node[:aem][:author][:restart_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'author'
+    user node[:aem][:author][:admin_user]
+    password lazy { node[:aem][:author][:admin_password] }
+    port node[:aem][:author][:port]
+    action bundle[:action]
+  end
 end
