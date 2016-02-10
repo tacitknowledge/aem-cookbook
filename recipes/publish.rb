@@ -216,3 +216,14 @@ node[:aem][:publish][:restart_bundles].each do |bundle|
     action bundle[:action]
   end
 end
+
+# If we are having bundles to stop, do it now
+node[:aem][:publish][:stop_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'publish'
+    user node[:aem][:publish][:admin_user]
+    password lazy { node[:aem][:publish][:admin_password] }
+    port node[:aem][:publish][:port]
+    action bundle[:action]
+  end
+end

@@ -146,6 +146,7 @@ default[:aem][:author] = {
   install_bundles: [],
   delete_bundles: [],
   restart_bundles: [],
+  stop_bundles: [],
 
   # You changed these, right?
   admin_user: 'admin',
@@ -195,7 +196,8 @@ default[:aem][:publish] = {
   find_cache_hosts_dynamically: false,
   install_bundles: [],
   delete_bundles: [],
-  restart_bundles: []
+  restart_bundles: [],
+  stop_bundles: []
 }
 default[:aem][:publish][:startup][:max_attempts] = 20
 default[:aem][:publish][:startup][:wait_between_attempts] = 30

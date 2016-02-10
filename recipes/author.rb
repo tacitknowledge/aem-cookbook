@@ -230,3 +230,14 @@ node[:aem][:author][:restart_bundles].each do |bundle|
     action bundle[:action]
   end
 end
+
+# If we are having bundles to stop, do it now
+node[:aem][:author][:stop_bundles].each do |bundle|
+  aem_bundle bundle[:name] do
+    aem_instance 'author'
+    user node[:aem][:author][:admin_user]
+    password lazy { node[:aem][:author][:admin_password] }
+    port node[:aem][:author][:port]
+    action bundle[:action]
+  end
+end
