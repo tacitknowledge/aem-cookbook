@@ -18,64 +18,64 @@
 
 node.default[:apache][:enable_default_site] = false
 
-include_recipe "apache2"
-include_recipe "apache2::mod_ssl"
-include_recipe "apache2::mod_expires"
+include_recipe 'apache2'
+include_recipe 'apache2::mod_ssl'
+include_recipe 'apache2::mod_expires'
 
 aem_dispatcher 'mod_dispatcher.so' do
-  package_install          node[:aem][:use_yum]
-  dispatcher_uri           node[:aem][:dispatcher][:mod_dispatcher_url]
-  dispatcher_checksum      node[:aem][:dispatcher][:mod_dispatcher_checksum]
-  dispatcher_version       node[:aem][:dispatcher][:version]
+  package_install node[:aem][:use_yum]
+  dispatcher_uri node[:aem][:dispatcher][:mod_dispatcher_url]
+  dispatcher_checksum node[:aem][:dispatcher][:mod_dispatcher_checksum]
+  dispatcher_version node[:aem][:dispatcher][:version]
   dispatcher_file_cookbook node[:aem][:dispatcher][:dispatcher_file_cookbook]
-  webserver_type           node[:aem][:dispatcher][:webserver_type]
-  apache_libexecdir        node[:apache][:libexec_dir]
+  webserver_type node[:aem][:dispatcher][:webserver_type]
+  apache_libexecdir node[:apache][:libexec_dir] || node[:apache][:libexecdir]
   action :install
 end
 
-#if we want to support non-apache, we'll need to do some more work here
-apache_module "dispatcher" do
-  #this will use the template mods/dispatcher.conf.erb
+# if we want to support non-apache, we'll need to do some more work here
+apache_module 'dispatcher' do
+  # this will use the template mods/dispatcher.conf.erb
   conf true
 end
 
-#this is where our provider will put the farm config files
-farm_dir =  "#{node[:apache][:dir]}/conf/aem-farms"
+# this is where our provider will put the farm config files
+farm_dir = "#{node[:apache][:dir]}/conf/aem-farms"
 node.default[:aem][:dispatcher][:farm_dir] = farm_dir
 
 directory farm_dir do
-  owner "root"
+  owner 'root'
   group node[:apache][:root_group]
-  mode "0775"
+  mode '0775'
   action :create
 end
 
-#directory for sessionmanagement
+# directory for sessionmanagement
 directory "#{node[:apache][:dir]}/dispatcher/sessions" do
   owner node[:apache][:user]
   group node[:apache][:root_group]
-  mode "0775"
+  mode '0775'
   recursive true
   action :create
 end
 
 template "#{node[:apache][:dir]}/conf/dispatcher.any" do
-  source "dispatcher.any.erb"
-  owner "root"
+  source 'dispatcher.any.erb'
+  owner 'root'
   group node[:apache][:root_group]
-  mode "0664"
+  mode '0664'
   action :create
-  notifies :restart, "service[apache2]"
+  notifies :restart, 'service[apache2]'
 end
 
-#if we are including from another cookbook, we likely want to configure our own.
+# if we are including from another cookbook, we likely want to configure our own.
 default_farm = node[:aem][:dispatcher][:farm_name]
 aem_farm default_farm do
   action :add
 end if default_farm
 
-include_recipe "iptables"
+include_recipe 'iptables'
 
-iptables_rule "10apache" do
-  source "iptables.erb"
+iptables_rule '10apache' do
+  source 'iptables.erb'
 end

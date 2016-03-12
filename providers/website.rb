@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#This provider creates or removes an apache virtual host containing locations
+# This provider creates or removes an apache virtual host containing locations
 # served by dispatcher.
 
 action :add do
@@ -33,14 +33,14 @@ action :add do
   end
 
   directory vars[:cache_root] do
-    owner "apache"
-    group "apache"
-    mode "0755"
+    owner 'apache'
+    group 'apache'
+    mode '0755'
     action :create
     recursive true
   end
 
-  #from apache2/definitions
+  # from apache2/definitions
   web_app site_name do
     template vars[:template_name]
     server_name vars[:server_name]

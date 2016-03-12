@@ -16,27 +16,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#This resource will add or remove an apache virtual host containing locations
+# This resource will add or remove an apache virtual host containing locations
 # that will be served by dispatcher
 
 actions :add, :remove
 
-attribute :site_name, :kind_of => String, :name_attribute => true
-attribute :server_name, :kind_of => String, :default => nil
-attribute :server_aliases, :kind_of => Array, :default => nil
-attribute :aem_locations, :kind_of => Array, :default => nil
-attribute :cache_root, :kind_of => String, :default => nil
-attribute :enabled, :kind_of => String, :default => nil
-attribute :rewrites, :kind_of => Array, :default => nil
-attribute :listen_port, :kind_of => String, :default => nil
-attribute :ssl_enabled, :kind_of => [ TrueClass, FalseClass ], :default => false
-attribute :ssl_cert_file, :kind_of => String, :default => nil
-attribute :ssl_key_file, :kind_of => String, :default => nil
-attribute :expire_dirs, :kind_of => Array, :default => nil
-attribute :enable_etag, :kind_of => [TrueClass, FalseClass ], :default => false
-attribute :enable_ie_header, :kind_of => [TrueClass, FalseClass ], :default => false
-attribute :template_cookbook, :kind_of => String, :default => 'aem'
-attribute :template_name, :kind_of => String, :default => 'aem_dispatcher.conf.erb'
-attribute :deflate_enabled, :kind_of => [TrueClass, FalseClass ], :default => false
-attribute :local_vars, :kind_of => Hash, :default => nil
-attribute :header, :kind_of => Array, :default => nil
+attribute :site_name, kind_of: String, name_attribute: true
+attribute :server_name, kind_of: String, default: nil
+attribute :server_aliases, kind_of: Array, default: nil
+attribute :aem_locations, kind_of: Array, default: nil
+attribute :cache_root, kind_of: String, default: nil
+attribute :enabled, kind_of: String, default: nil
+attribute :rewrites, kind_of: Array, default: nil
+attribute :listen_port, kind_of: String, default: nil
+attribute :ssl_enabled, kind_of: [TrueClass, FalseClass], default: false
+attribute :ssl_cert_file, kind_of: String, default: nil
+attribute :ssl_key_file, kind_of: String, default: nil
+attribute :expire_dirs, kind_of: Array, default: nil
+attribute :enable_etag, kind_of: [TrueClass, FalseClass], default: false
+attribute :enable_ie_header, kind_of: [TrueClass, FalseClass], default: false
+attribute :template_cookbook, kind_of: String, default: 'aem'
+attribute :template_name, kind_of: String, default: 'aem_dispatcher.conf.erb'
+attribute :deflate_enabled, kind_of: [TrueClass, FalseClass], default: false
+attribute :local_vars, kind_of: Hash, default: nil
+attribute :header, kind_of: Array, default: nil

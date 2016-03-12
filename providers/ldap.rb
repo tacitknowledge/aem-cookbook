@@ -16,22 +16,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#This provider enables or disables ldap auth for an AEM instance
+# This provider enables or disables ldap auth for an AEM instance
 
 action :enable do
   vars = {}
   instance_name = new_resource.instance_name
   base_dir = node[:aem][instance_name][:base_dir]
-  user = node[:aem][:aem_options]["RUNAS_USER"]
+  user = node[:aem][:aem_options]['RUNAS_USER']
 
-  #take value passed to provider, or node attribute
+  # take value passed to provider, or node attribute
   vars[:options] = new_resource.send(:options) ||
-    node[:aem][instance_name][:ldap][:options]
+                   node[:aem][instance_name][:ldap][:options]
 
   directory "#{base_dir}/conf" do
     owner user
     group user
-    mode "0755"
+    mode '0755'
     action :create
     recursive true
   end
@@ -41,11 +41,11 @@ action :enable do
     source 'ldap_login.conf.erb'
     mode '0644'
     variables(vars)
-    notifies :restart, resources(:service => "aem-#{instance_name}")
+    notifies :restart, resources(service: "aem-#{instance_name}")
   end
 
-  #add the JVM option to use ldap, it will get added to startup script.
-  opt = "-Djava.security.auth.login.config=crx-quickstart/conf/ldap_login.conf"
+  # add the JVM option to use ldap, it will get added to startup script.
+  opt = '-Djava.security.auth.login.config=crx-quickstart/conf/ldap_login.conf'
   node.default[:aem][instance_name][:jvm_opts][opt] = true
 end
 
@@ -54,7 +54,7 @@ action :disable do
   file "#{node[:aem][instance_name][:base_dir]}/conf/ldap_login.conf" do
     action :delete
   end
-  opt = "-Djava.security.auth.login.config=crx-quickstart/conf/ldap_login.conf"
+  opt = '-Djava.security.auth.login.config=crx-quickstart/conf/ldap_login.conf'
 
   node.default[:aem][instance_name][:jvm_opts].delete(opt)
 end

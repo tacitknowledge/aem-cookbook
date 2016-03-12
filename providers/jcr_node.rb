@@ -46,7 +46,7 @@ def check_node(url, user, password, name)
   when 404
     false
   else
-    raise "Unable to read JCR node at #{url}. response_code: #{c.response_code} response: #{c.body_str}"
+    fail "Unable to read JCR node at #{url}. response_code: #{c.response_code} response: #{c.body_str}"
   end
 end
 
@@ -62,18 +62,18 @@ action :create do
     unless check_node(url, new_resource.user, new_resource.password, new_resource.name) == new_resource.contents
       fields = [
         Curl::PostField.file(new_resource.name, new_resource.contents),
-        Curl::PostField.content("#{new_resource.name}@TypeHint", "Binary")
+        Curl::PostField.content("#{new_resource.name}@TypeHint", 'Binary')
       ]
       c = curl_form(url, new_resource.user, new_resource.password, fields)
       if c.response_code == 200 || c.response_code == 201
         new_resource.updated_by_last_action(true)
         Chef::Log.debug("New jcr_node was created at #{new_resource.path}")
       else
-        raise "JCR Node Creation failed.  HTTP code: #{c.response_code}"
+        fail "JCR Node Creation failed.  HTTP code: #{c.response_code}"
       end
     end
   else
-    raise "Node type '#{new_resource.type}' is unsupported for creation.  If you need this type, please file an issue, or better yet, a pull request."
+    fail "Node type '#{new_resource.type}' is unsupported for creation.  If you need this type, please file an issue, or better yet, a pull request."
   end
 end
 
@@ -81,12 +81,12 @@ action :delete do
   url = make_url(new_resource)
   if check_node(url, new_resource.user, new_resource.password, new_resource.name)
     # If the node exists, delete it
-    fields = [ Curl::PostField.content(":operation", "delete") ]
+    fields = [Curl::PostField.content(':operation', 'delete')]
     c = curl_form(url, new_resource.user, new_resource.password, fields)
     if c.response_code == 200 || c.response_code == 201
       new_resource.updated_by_last_action(true)
     else
-      raise "JCR Node Deletion failed.  HTTP code: #{c.response_code}"
+      fail "JCR Node Deletion failed.  HTTP code: #{c.response_code}"
     end
   end
 end

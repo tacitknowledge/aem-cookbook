@@ -1,8 +1,6 @@
 #
 # Cookbook Name:: aem
-# Resource:: init
-#
-# Copyright 2012, Tacit Knowledge, Inc.
+# Resource:: group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,14 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This resource creates an init script for AEM
+actions :add, :remove, :add_user, :remove_user
 
-actions :add
-
-attribute :service_name, kind_of: String, name_attribute: true, required: true
-attribute :aem_options, kind_of: Hash, default: nil
-attribute :default_context, kind_of: String, default: nil
-attribute :runnable_jar, kind_of: String, default: nil
-attribute :base_dir, kind_of: String, default: nil
-attribute :jvm_opts, kind_of: Hash, default: nil
-attribute :jar_opts, kind_of: Array, default: nil
+attribute :group, :kind_of => String, :name_attribute => true
+attribute :admin_user, :kind_of => String, :default => nil
+attribute :admin_password, :kind_of => String, :default => nil
+attribute :port, :kind_of => String, :default => nil
+attribute :aem_version, :kind_of => String, :default => node[:aem][:version]
+attribute :path, :kind_of => String, :default => nil # the path to the group in AEM
+attribute :user, :kind_of => String, :default => nil

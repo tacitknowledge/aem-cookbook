@@ -18,13 +18,14 @@
 
 actions :add, :remove
 
-attribute :name, :kind_of => String, :name_attribute => true
-attribute :local_user, :kind_of => String, :required => true
-attribute :local_password, :kind_of => String, :required => true
-attribute :local_port, :kind_of => String, :required => true
-attribute :remote_hosts, :kind_of => Array, :default => []
-attribute :dynamic_cluster, :kind_of => [ TrueClass, FalseClass ], :default => false
-attribute :cluster_name, :kind_of => String, :default => nil
-attribute :cluster_role, :kind_of => String, :default => nil
-attribute :type, :kind_of => Symbol, :default => nil
-attribute :server, :kind_of => String, :default => nil
+attribute :name, kind_of: String, name_attribute: true
+attribute :local_user, kind_of: String, required: true
+attribute :local_password, kind_of: String, required: true
+attribute :local_port, kind_of: String, required: true
+attribute :remote_hosts, kind_of: Array, default: []
+attribute :dynamic_cluster, kind_of: [TrueClass, FalseClass], default: false
+attribute :cluster_name, kind_of: String, default: nil
+attribute :cluster_role, kind_of: String, default: nil
+attribute :type, kind_of: Symbol, default: nil
+attribute :server, kind_of: String, default: nil
+attribute :aem_version, kind_of: String, default: nil
