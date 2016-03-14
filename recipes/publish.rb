@@ -39,6 +39,21 @@ if node[:aem][:version].to_f > 5.4
   node.set[:aem][:publish][:runnable_jar] = "aem-publish-p#{node[:aem][:publish][:port]}.jar"
 end
 
+#Install Service Pack
+directory "#{node['aem']['publish']['base_dir']}/install" do
+  owner node['aem']['aem_options']['RUNAS_USER']
+  mode '0755'
+  action :create
+  not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
+end
+
+remote_file "#{node['aem']['publish']['base_dir']}/install/AEM-6.1-Service-Pack-1-6.1.SP1.zip" do
+  source 'http://chef.criticalmass.com:8080/filestore/AEM-6.1-Service-Pack-1-6.1.SP1.zip'
+  owner node['aem']['aem_options']['RUNAS_USER']
+  action :create_if_missing
+  not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
+end
+
 aem_init 'aem-publish' do
   service_name 'aem-publish'
   default_context node[:aem][:publish][:default_context]

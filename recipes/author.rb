@@ -39,6 +39,21 @@ if node[:aem][:version].to_f > 5.4
   node.set[:aem][:author][:runnable_jar] = "aem-author-p#{node[:aem][:author][:port]}.jar"
 end
 
+#Install Service Pack
+directory "#{node['aem']['author']['base_dir']}/install" do
+  owner node['aem']['aem_options']['RUNAS_USER']
+  mode '0755'
+  action :create
+  not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
+end
+
+remote_file "#{node['aem']['author']['base_dir']}/install/#{node['aem']['service_pack']}" do
+  source node['aem']['service_pack_url']
+  owner node['aem']['aem_options']['RUNAS_USER']
+  action :create_if_missing
+  not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
+end
+
 aem_init 'aem-author' do
   service_name 'aem-author'
   default_context node[:aem][:author][:default_context]
