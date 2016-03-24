@@ -69,25 +69,11 @@ service 'aem-publish' do
   status_command 'service aem-publish status | grep running'
   supports status: true, stop: true, start: true, restart: true
   action [:enable, :start]
+  notifies :wait, 'aem_startup_urls_watcher[publish]', :immediately
 end
 
-if node[:aem][:version].to_f > 5.4
-  node[:aem][:publish][:validation_urls].each do |url|
-    aem_url_watcher url do
-      validation_url url
-      status_command 'service aem-publish status | grep running'
-      max_attempts node[:aem][:publish][:startup][:max_attempts]
-      wait_between_attempts node[:aem][:publish][:startup][:wait_between_attempts]
-      user node[:aem][:publish][:admin_user]
-      password node[:aem][:publish][:admin_password]
-      action :wait
-    end
-  end
-else
-  aem_port_watcher '4503' do
-    status_command 'service aem-publish status | grep running'
-    action :wait
-  end
+aem_startup_urls_watcher 'publish' do
+  action :nothing
 end
 
 unless node[:aem][:publish][:new_admin_password].nil?

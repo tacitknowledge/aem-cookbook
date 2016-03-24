@@ -68,26 +68,12 @@ service 'aem-author' do
   # init script returns 0 for status no matter what
   status_command 'service aem-author status | grep running'
   supports status: true, stop: true, start: true, restart: true
-  action [:enable, :start]
+  action [:enable, :restart]
+  notifies :wait, 'aem_startup_urls_watcher[author]', :immediately
 end
 
-if node[:aem][:version].to_f > 5.4
-  node[:aem][:author][:validation_urls].each do |url|
-    aem_url_watcher url do
-      validation_url url
-      status_command 'service aem-author status | grep running'
-      max_attempts node[:aem][:author][:startup][:max_attempts]
-      wait_between_attempts node[:aem][:author][:startup][:wait_between_attempts]
-      user node[:aem][:author][:admin_user]
-      password node[:aem][:author][:admin_password]
-      action :wait
-    end
-  end
-else
-  aem_port_watcher '4502' do
-    status_command 'service aem-author status | grep running'
-    action :wait
-  end
+aem_startup_urls_watcher 'author' do
+  action :nothing
 end
 
 unless node[:aem][:author][:new_admin_password].nil?

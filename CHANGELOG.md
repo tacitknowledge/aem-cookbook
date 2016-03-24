@@ -1,3 +1,7 @@
+#2.2.2
+* Enhancements
+  * Waits for validation urls each time an aem instance is restarted
+
 #2.2.1
 * Enhancements
   * Add servicepack when indicated by an attribute
