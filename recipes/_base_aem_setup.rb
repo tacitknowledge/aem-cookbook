@@ -40,8 +40,8 @@ end.run_action(:install)
 
 require 'curb'
 
-unless node['aem']['license_url']
-  Chef::Application.fatal! 'aem.license_url attribute cannot be nil. Please populate that attribute.'
+unless node['aem']['license_url'] || node['aem']['license_customer_name'] && node['aem']['license_download_id']
+  Chef::Application.fatal! 'At lest one of aem.license_url or aem.license_customer_name && aem.license_download_id attribute should not be nil. Please populate that attribute.'
 end
 
 unless node['aem']['download_url']
