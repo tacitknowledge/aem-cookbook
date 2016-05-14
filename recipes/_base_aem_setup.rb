@@ -16,8 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Platform specific package names
+case node['platform']
+when 'debian', 'ubuntu'
+  curl_package = 'libcurl4-openssl-dev'
+when 'redhat', 'centos', 'fedora'
+  curl_package = 'libcurl-devel'
+end
+
 # We need these for the jcr_node provider
-package 'libcurl-devel' do
+package curl_package do
   action :nothing
 end.run_action(:install)
 
