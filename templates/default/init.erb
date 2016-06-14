@@ -425,9 +425,6 @@ case "$CQ_COMMAND" in
     jvmOpts="$jvmOpts -Xmx${CQ_JVM_HEAP_MAX}m"
     jvmOpts="$jvmOpts -XX:MaxPermSize=${CQ_PERMGEN}m"
     jvmOpts="$jvmOpts -Djava.awt.headless=true"
-    # Added for GC robustness and heap dump collection
-    jvmOpts="$jvmOpts -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintCommandLineFlags"
-    jvmOpts="$jvmOpts -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode"
 
     if [ -n "$CQ_JVM_DEBUG" ]; then
         jvmOpts="$jvmOpts -Xdebug -Xnoagent -Djava.compiler=NONE \
