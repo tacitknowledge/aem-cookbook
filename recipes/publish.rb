@@ -47,8 +47,8 @@ directory "#{node['aem']['publish']['base_dir']}/install" do
   not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
 end
 
-remote_file "#{node['aem']['publish']['base_dir']}/install/AEM-6.1-Service-Pack-1-6.1.SP1.zip" do
-  source 'http://chef.criticalmass.com:8080/filestore/AEM-6.1-Service-Pack-1-6.1.SP1.zip'
+remote_file "#{node['aem']['publish']['base_dir']}/install/#{node['aem']['service_pack']}" do
+  source node['aem']['service_pack_url']
   owner node['aem']['aem_options']['RUNAS_USER']
   action :create_if_missing
   not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }

@@ -1,3 +1,7 @@
+#2.2.3
+* Fixes
+  * Replaces hard-coded url to criticalmass server with an attribute for Service Pack
+
 #2.2.2
 * Enhancements
   * Waits for validation urls each time an aem instance is restarted
