@@ -34,7 +34,7 @@ end
 
 def get_group_path(port, group, admin_user, admin_password)
   url = "http://localhost:#{port}/bin/querybuilder.json?path=/home/groups&1_property=rep:authorizableId&1_property.value=#{group}&p.limit=-1"
-  res = http_get(url_user, admin_user, admin_password)
+  res = http_get(url, admin_user, admin_password)
   group_json = JSON.parse(res.body_str)
 
   path = nil
