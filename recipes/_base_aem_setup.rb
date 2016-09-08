@@ -31,9 +31,11 @@ package curl_package do
   action :nothing
 end.run_action(:install)
 
-package 'gcc' do
-  action :nothing
-end.run_action(:install)
+%w{gcc build-essential g++}.each do |pkg|
+  package pkg do
+    action :nothing
+  end.run_action(:install)
+end
 
 chef_gem 'rest-client' do
   compile_time false if Chef::Resource::ChefGem.method_defined?(:compile_time)

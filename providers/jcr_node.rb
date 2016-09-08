@@ -52,7 +52,7 @@ action :create do
   when 'file'
     unless check_node(url, new_resource.user, new_resource.password, new_resource.name) == new_resource.contents
       # EH This doesn't work!! Fields need to be in right format, need to figure out what AEM api expects
-      fields = {metadata: new_resource.name, :content => new_resource.contents }
+      fields = {operation: 'post', metadata: new_resource.name, :content => new_resource.contents }
 
       #[
       #  Curl::PostField.file(new_resource.name, new_resource.contents),
