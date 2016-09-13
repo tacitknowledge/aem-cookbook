@@ -77,7 +77,13 @@
             /type "<%= @ignore_url_params[rule_number][:type] %>"
           }
       <% end %>
-      } 
+      }
+    /headers
+      {
+        <% node[:aem][:dispatcher][:headers].each do |head| %>
+        "<%= head %>"
+        <% end %> 
+      }
     }
   /statistics
     {
