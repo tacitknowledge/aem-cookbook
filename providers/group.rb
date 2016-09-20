@@ -27,19 +27,15 @@ def set_vars
   [ group, admin_user, admin_password, port, aem_version, path ]
 end
 
-def curl(url, user, password)
-  c = Curl::Easy.new(url)
-  c.http_auth_types = :basic
-  c.username = user
-  c.password = password
-  c.perform
-  c
+def http_get(url, user, password)
+  res = RestClient::Resource.new(url, user, password)
+  res.get
 end
 
 def get_group_path(port, group, admin_user, admin_password)
   url = "http://localhost:#{port}/bin/querybuilder.json?path=/home/groups&1_property=rep:authorizableId&1_property.value=#{group}&p.limit=-1"
-  c = curl(url, admin_user, admin_password)
-  group_json = JSON.parse(c.body_str)
+  res = http_get(url, admin_user, admin_password)
+  group_json = JSON.parse(res.body_str)
 
   path = nil
   hits = group_json['hits']

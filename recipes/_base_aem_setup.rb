@@ -31,16 +31,18 @@ package curl_package do
   action :nothing
 end.run_action(:install)
 
-package 'gcc' do
-  action :nothing
-end.run_action(:install)
+%w{gcc build-essential g++}.each do |pkg|
+  package pkg do
+    action :nothing
+  end.run_action(:install)
+end
 
-chef_gem 'curb' do
+chef_gem 'rest-client' do
   compile_time false if Chef::Resource::ChefGem.method_defined?(:compile_time)
   action :nothing
 end.run_action(:install)
 
-require 'curb'
+require 'rest-client'
 
 unless node['aem']['license_url'] || node['aem']['license_customer_name'] && node['aem']['license_download_id']
   Chef::Application.fatal! 'At lest one of aem.license_url or aem.license_customer_name && aem.license_download_id attribute should not be nil. Please populate that attribute.'

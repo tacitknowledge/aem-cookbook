@@ -18,35 +18,26 @@
 
 # This provider manages an AEM JCR node
 
-def curl(url, user, password)
-  c = Curl::Easy.new(url)
-  c.http_auth_types = :basic
-  c.username = user
-  c.password = password
-  c.perform
-  c
+def http_get(url, user, password)
+  res = RestClient::Resource.new(url, user, password)
+  res.get
 end
 
-def curl_form(url, user, password, fields)
-  c = Curl::Easy.http_post(url, *fields)
-  c.http_auth_types = :basic
-  c.username = user
-  c.password = password
-  c.multipart_form_post = true
-  c.perform
-  c
+def http_post(url, user, password, fields)
+  res = RestClient::Resource.new(url, user, password)
+  res.post(fields)
 end
 
 def check_node(url, user, password, name)
   url = "#{url}/#{name}"
-  c = curl(url, user, password)
-  case c.response_code
+  res = http_get(url, user, password)
+  case res.code
   when 200, 201
-    c.body_str
+    res.to_str
   when 404
     false
   else
-    fail "Unable to read JCR node at #{url}. response_code: #{c.response_code} response: #{c.body_str}"
+    fail "Unable to read JCR node at #{url}. response_code: #{res.code} response: #{res.to_str}"
   end
 end
 
@@ -60,16 +51,21 @@ action :create do
   case new_resource.type
   when 'file'
     unless check_node(url, new_resource.user, new_resource.password, new_resource.name) == new_resource.contents
-      fields = [
-        Curl::PostField.file(new_resource.name, new_resource.contents),
-        Curl::PostField.content("#{new_resource.name}@TypeHint", 'Binary')
-      ]
-      c = curl_form(url, new_resource.user, new_resource.password, fields)
-      if c.response_code == 200 || c.response_code == 201
+      # EH This doesn't work!! Fields need to be in right format, need to figure out what AEM api expects
+      fields = {operation: 'post', metadata: new_resource.name, :content => new_resource.contents }
+
+      #[
+      #  Curl::PostField.file(new_resource.name, new_resource.contents),
+      #  Curl::PostField.content("#{new_resource.name}@TypeHint", 'Binary')
+      #]
+
+
+      res = http_post(url, new_resource.user, new_resource.password, fields)
+      if res.code == 200 || res.code == 201
         new_resource.updated_by_last_action(true)
         Chef::Log.debug("New jcr_node was created at #{new_resource.path}")
       else
-        fail "JCR Node Creation failed.  HTTP code: #{c.response_code}"
+        fail "JCR Node Creation failed.  HTTP code: #{res.code}"
       end
     end
   else
@@ -81,12 +77,13 @@ action :delete do
   url = make_url(new_resource)
   if check_node(url, new_resource.user, new_resource.password, new_resource.name)
     # If the node exists, delete it
-    fields = [Curl::PostField.content(':operation', 'delete')]
-    c = curl_form(url, new_resource.user, new_resource.password, fields)
-    if c.response_code == 200 || c.response_code == 201
+    # EH might not have to be multipart
+    fields = {operation: 'delete', multipart: true}
+    res = http_post(url, new_resource.user, new_resource.password, fields)
+    if res.code == 200 || res.code == 201
       new_resource.updated_by_last_action(true)
     else
-      fail "JCR Node Deletion failed.  HTTP code: #{c.response_code}"
+      fail "JCR Node Deletion failed.  HTTP code: #{res.code}"
     end
   end
 end
