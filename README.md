@@ -116,7 +116,7 @@ Include `aem::dispatcher` in your node's `run_list`:
 - Author:: Paul Dunnavant (<pdunnavant@tacitknowledge.com>)
 
 ```text
-Copyright 2012-2014, Tacit Knowledge, Inc.
+Copyright 2012-2016, Tacit Knowledge, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
