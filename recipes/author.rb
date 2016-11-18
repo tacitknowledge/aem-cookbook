@@ -27,6 +27,14 @@ unless node[:aem][:use_yum]
   end
 end
 
+unless node[:aem][:license_customer_name].nil? && node[:aem][:license_download_id].nil?
+  template "#{node[:aem][:author][:default_context]}/license.properties" do
+    source 'license.properties.erb'
+    sensitive true
+    mode 0644
+  end
+end
+
 unless node[:aem][:license_url].nil?
   remote_file "#{node[:aem][:author][:default_context]}/license.properties" do
     source "#{node[:aem][:license_url]}"
