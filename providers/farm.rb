@@ -62,7 +62,8 @@ action :add do
         name: r[:fqdn],
         hostname: r[:ipaddress],
         port: r[:aem][cluster_type][:port],
-        timeout: timeout
+        timeout: timeout,
+        receiveTimeout: receiveTimeout
       }
     end
     # Don't ever return an empty renders list, or apache won't start and
