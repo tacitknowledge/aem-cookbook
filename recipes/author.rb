@@ -76,7 +76,7 @@ service 'aem-author' do
   # init script returns 0 for status no matter what
   status_command 'service aem-author status | grep running'
   supports status: true, stop: true, start: true, restart: true
-  action [:enable, :restart]
+  action [:enable, :start]
   notifies :wait, 'aem_startup_urls_watcher[author]', :immediately
 end
 
