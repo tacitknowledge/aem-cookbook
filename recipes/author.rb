@@ -84,19 +84,23 @@ aem_startup_urls_watcher 'author' do
   action :nothing
 end
 
-unless node[:aem][:author][:new_admin_password].nil?
-  # Change admin password
-  aem_user node[:aem][:author][:admin_user] do
-    password node[:aem][:author][:new_admin_password]
-    admin_user node[:aem][:author][:admin_user]
-    admin_password node[:aem][:author][:admin_password]
-    port node[:aem][:author][:port]
-    aem_version node[:aem][:version]
-    action :set_password
-  end
+aem_user node[:aem][:author][:admin_user] do
+  password node[:aem][:author][:new_admin_password]
+  admin_user node[:aem][:author][:admin_user]
+  admin_password node[:aem][:author][:admin_password]
+  port node[:aem][:author][:port]
+  aem_version node[:aem][:version]
+  action :set_password
+  only_if { !node[:aem][:author][:new_admin_password].nil? }
+  notifies :run, 'ruby_block[update author admin password attribute]', :immediately
+end
 
-  node.set[:aem][:author][:admin_password] = node[:aem][:author][:new_admin_password]
-  node.set[:aem][:author][:new_admin_password] = nil
+ruby_block 'update author admin password attribute' do
+  block do
+    node.set['aem']['author']['admin_password'] = node['aem']['author']['new_admin_password']
+    node.set['aem']['author']['new_admin_password'] = nil
+  end
+  only_if { !node[:aem][:author][:new_admin_password].nil? }
 end
 
 # delete the privileged users from geometrixx, if they're still there.
