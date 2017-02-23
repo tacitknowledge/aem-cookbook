@@ -27,6 +27,15 @@ unless node[:aem][:use_yum]
   end
 end
 
+unless node[:aem][:use_yum]
+  aem_jar_installer 'author' do
+    download_url node[:aem][:package_store_url]
+    default_context node[:aem][:author][:default_context]
+    port node[:aem][:author][:port]
+    action :install
+  end
+end
+
 unless node[:aem][:license_customer_name].nil? && node[:aem][:license_download_id].nil?
   template "#{node[:aem][:author][:default_context]}/license.properties" do
     source 'license.properties.erb'
