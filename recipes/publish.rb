@@ -27,6 +27,15 @@ unless node[:aem][:use_yum]
   end
 end
 
+unless node[:aem][:use_yum]
+  aem_prerequisite_installer 'publish' do
+    package_store_url node[:aem][:package_store_url]
+    install_pkgs_on_start node[:aem][:install_pkgs_on_start]
+    base_dir node[:aem][:publish][:base_dir]
+    action :install
+  end
+end
+
 unless node[:aem][:license_url].nil?
   remote_file "#{node[:aem][:publish][:default_context]}/license.properties" do
     source "#{node[:aem][:license_url]}"

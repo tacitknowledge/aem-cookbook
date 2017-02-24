@@ -118,6 +118,7 @@ default[:aem][:author] = {
   port: '4502',
   runnable_jar: 'aem-author-p4502.jar',
   base_dir: '/opt/aem/author/crx-quickstart',
+  install_dir: '/opt/aem/publish/crx-quickstart/install'
   jvm_opts: {},
   ldap: {
     enabled: false,
@@ -142,6 +143,9 @@ default[:aem][:author] = {
     #      captured group.  This is a string; it will get converted to a regexp.
     #    :action => [ :upload, :install, :activate ]
     #  }
+  ],
+  install_pkgs_on_start: [
+	# Automate prerequisites deployment on stack creation WEB-3137
   ],
   install_bundles: [],
   delete_bundles: [],
@@ -169,6 +173,7 @@ default[:aem][:publish] = {
   port: '4503',
   runnable_jar: 'aem-publish-p4503.jar',
   base_dir: '/opt/aem/publish/crx-quickstart',
+  install_dir: '/opt/aem/publish/crx-quickstart/install'
   jvm_opts: {},
   ldap: {
     enabled: false,
@@ -182,6 +187,9 @@ default[:aem][:publish] = {
   ],
   deploy_pkgs: [
     # See the format in author, above
+  ],
+  install_pkgs_on_start: [
+        # Automate prerequisites deployment on stack creation WEB-3137
   ],
   admin_user: 'admin',
   admin_password: 'admin',
