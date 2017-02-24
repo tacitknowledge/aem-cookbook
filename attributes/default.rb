@@ -26,6 +26,7 @@ default[:aem][:enable_webdav] = false
 default[:aem][:jar_name] = nil
 default[:aem][:use_yum] = false
 default[:aem][:download_url] = nil
+default[:aem][:install_pkgs_on_start] = nil
 default[:aem][:license_url] = nil
 default[:aem][:license_customer_name] = nil
 default[:aem][:license_download_id] = nil
