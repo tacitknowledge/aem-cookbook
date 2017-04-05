@@ -47,6 +47,21 @@ if node[:aem][:version].to_f > 5.4
   node.set[:aem][:author][:runnable_jar] = "aem-author-p#{node[:aem][:author][:port]}.jar"
 end
 
+#Install Service Pack
+directory "#{node['aem']['author']['base_dir']}/install" do
+  owner node['aem']['aem_options']['RUNAS_USER']
+  mode '0755'
+  action :create
+  not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
+end
+
+remote_file "#{node['aem']['author']['base_dir']}/install/#{node['aem']['service_pack']}" do
+  source node['aem']['service_pack_url']
+  owner node['aem']['aem_options']['RUNAS_USER']
+  action :create_if_missing
+  not_if { node['aem']['service_pack'].nil? || node['aem']['service_pack'].empty? }
+end
+
 aem_init 'aem-author' do
   service_name 'aem-author'
   default_context node[:aem][:author][:default_context]
@@ -62,40 +77,30 @@ service 'aem-author' do
   status_command 'service aem-author status | grep running'
   supports status: true, stop: true, start: true, restart: true
   action [:enable, :start]
+  notifies :wait, 'aem_startup_urls_watcher[author]', :immediately
 end
 
-if node[:aem][:version].to_f > 5.4
-  node[:aem][:author][:validation_urls].each do |url|
-    aem_url_watcher url do
-      validation_url url
-      status_command 'service aem-author status | grep running'
-      max_attempts node[:aem][:author][:startup][:max_attempts]
-      wait_between_attempts node[:aem][:author][:startup][:wait_between_attempts]
-      user node[:aem][:author][:admin_user]
-      password node[:aem][:author][:admin_password]
-      action :wait
-    end
-  end
-else
-  aem_port_watcher '4502' do
-    status_command 'service aem-author status | grep running'
-    action :wait
-  end
+aem_startup_urls_watcher 'author' do
+  action :nothing
 end
 
-unless node[:aem][:author][:new_admin_password].nil?
-  # Change admin password
-  aem_user node[:aem][:author][:admin_user] do
-    password node[:aem][:author][:new_admin_password]
-    admin_user node[:aem][:author][:admin_user]
-    admin_password node[:aem][:author][:admin_password]
-    port node[:aem][:author][:port]
-    aem_version node[:aem][:version]
-    action :set_password
-  end
+aem_user node[:aem][:author][:admin_user] do
+  password node[:aem][:author][:new_admin_password]
+  admin_user node[:aem][:author][:admin_user]
+  admin_password node[:aem][:author][:admin_password]
+  port node[:aem][:author][:port]
+  aem_version node[:aem][:version]
+  action :set_password
+  only_if { !node[:aem][:author][:new_admin_password].nil? }
+  notifies :run, 'ruby_block[update author admin password attribute]', :immediately
+end
 
-  node.set[:aem][:author][:admin_password] = node[:aem][:author][:new_admin_password]
-  node.set[:aem][:author][:new_admin_password] = nil
+ruby_block 'update author admin password attribute' do
+  block do
+    node.set['aem']['author']['admin_password'] = node['aem']['author']['new_admin_password']
+    node.set['aem']['author']['new_admin_password'] = nil
+  end
+  only_if { !node[:aem][:author][:new_admin_password].nil? }
 end
 
 # delete the privileged users from geometrixx, if they're still there.

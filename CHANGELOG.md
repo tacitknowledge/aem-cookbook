@@ -1,3 +1,16 @@
+#2.2.3
+* Fixes
+  * Replaces hard-coded url to criticalmass server with an attribute for Service Pack
+
+#2.2.2
+* Enhancements
+  * Waits for validation urls each time an aem instance is restarted
+
+#2.2.1
+* Enhancements
+  * Add servicepack when indicated by an attribute
+  * Relaxes version constraint on ark cookbook such that no conflict arises with maven cookbook.
+
 #2.2.0
 * Enhancements
   * Add new group provider.

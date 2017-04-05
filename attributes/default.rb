@@ -43,6 +43,11 @@ default[:aem][:aem_options] = {
   'CQ_PERMGEN' => '128'
 }
 
+# To install a service pack, specify the name of the pack and a complete url of that.
+# Ex: 'AEM-6.1-Service-Pack-1-6.1.SP1.zip' and 'http://fileserver/AEM-6.1-Service-Pack-1-6.1.SP1.zip'
+default[:aem][:service_pack] = nil
+default[:aem][:service_pack_url] = 'http://a-dummy-url'
+
 # These work in such a way that the providers will find the closest matching command using the provided
 # node[:aem][:version]. The command matching the given version without going over will be used.
 # For example, if node[:aem][:version] is 5.5, then node[:aem][:commands][:replicators][:publish][:add]['5.4']
