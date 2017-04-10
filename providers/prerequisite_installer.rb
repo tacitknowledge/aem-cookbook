@@ -50,14 +50,14 @@ action :install do
 	#     action :create_if_missing
  #      end   
  #    end
- vars[:install_pkgs_on_start].each do |f|
-   remote_file "#{vars[:base_dir]}/install/#{f}" do
-      source "#{vars[:package_store_url]}/#{f}"
-      owner 'crx'
-      group 'crx'
-      mode "0644"
-      action :create_if_missing
-   end
- end
+	 vars[:install_pkgs_on_start].each do |f|
+	   remote_file "#{vars[:base_dir]}/install/#{f}" do
+	      source "#{vars[:package_store_url]}/#{f}"
+	      owner 'crx'
+	      group 'crx'
+	      mode "0644"
+	      action :create_if_missing
+	   end
+	 end
 end
 
