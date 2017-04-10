@@ -33,22 +33,31 @@ action :install do
 	  action :create
 	end
 	
-	vars[:install_pkgs_on_start].each do |f|   
-      remote_name = f
-	  r = remote_file "#{Chef::Config[:file_cache_path]}/#{remote_name}" do
-	      source "#{vars[:package_store_url]}/#{f}"
-	      mode '0755'
-	      action :nothing
-      end
-      r.run_action(:create_if_missing)
+	# vars[:install_pkgs_on_start].each do |f|   
+ #      remote_name = f
+	#   r = remote_file "#{Chef::Config[:file_cache_path]}/#{remote_name}" do
+	#       source "#{vars[:package_store_url]}/#{f}"
+	#       mode '0755'
+	#       action :nothing
+ #      end
+ #      r.run_action(:create_if_missing)
 
-      remote_file "#{vars[:base_dir]}/install/#{f}" do
-	    source "file://#{Chef::Config[:file_cache_path]}/#{remote_name}"
-	    owner 'crx'
-	    group 'crx'
-	    mode '0755'
-	    action :create_if_missing
-      end   
-    end
+ #      remote_file "#{vars[:base_dir]}/install/#{f}" do
+	#     source "file://#{Chef::Config[:file_cache_path]}/#{remote_name}"
+	#     owner 'crx'
+	#     group 'crx'
+	#     mode '0755'
+	#     action :create_if_missing
+ #      end   
+ #    end
+ vars[:install_pkgs_on_start].each do |f|
+   remote_file "#{vars[:base_dir]}/install/#{f}" do
+      source "#{vars[:package_store_url]}/#{f}"
+      owner 'crx'
+      group 'crx'
+      mode "0644"
+      action :create_if_missing
+   end
+ end
 end
 
