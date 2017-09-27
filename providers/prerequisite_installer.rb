@@ -17,47 +17,30 @@
 # limitations under the License.
 
 action :install do
-	vars = {}	
-	var_list = [:base_dir, :install_pkgs_on_start, :package_store_url]
+	# Use fallback attributes if property isn't passed 
+	base_dir = new_resource.base_dir || node[:aem][:base_dir]
+	install_pkgs_on_start = new_resource.install_pkgs_on_start || node[:aem][:install_pkgs_on_start]
+	package_store_url = new_resource.package_store_url || node[:aem][:package_store_url]
 
-	# take value passed to provider, or node attribute
-	var_list.each do |var|
-	vars[var] = new_resource.send(var) || node[:aem][var]
-	end
+	install_dir = base_dir + '/install'
 
-	directory "#{vars[:base_dir]}/install" do
-	  recursive false
+	directory install_dir do
 	  owner 'crx'
 	  group 'crx'
 	  mode '0755'
 	  action :create
 	end
 	
-	# vars[:install_pkgs_on_start].each do |f|   
- #      remote_name = f
-	#   r = remote_file "#{Chef::Config[:file_cache_path]}/#{remote_name}" do
-	#       source "#{vars[:package_store_url]}/#{f}"
-	#       mode '0755'
-	#       action :nothing
- #      end
- #      r.run_action(:create_if_missing)
+	install_pkgs_on_start.each do |file|
+		file_name = File.basename(file)
 
- #      remote_file "#{vars[:base_dir]}/install/#{f}" do
-	#     source "file://#{Chef::Config[:file_cache_path]}/#{remote_name}"
-	#     owner 'crx'
-	#     group 'crx'
-	#     mode '0755'
-	#     action :create_if_missing
- #      end   
- #    end
-	 vars[:install_pkgs_on_start].each do |f|
-	   remote_file "#{vars[:base_dir]}/install/#{f}" do
-	      source "#{vars[:package_store_url]}/#{f}"
-	      owner 'crx'
-	      group 'crx'
-	      mode "0644"
-	      action :create_if_missing
-	   end
-	 end
+   	remote_file "#{install_dir}/#{file_name}" do
+      source "#{package_store_url}/#{file}"
+      owner 'crx'
+      group 'crx'
+      mode "0644"
+      action :create_if_missing
+    end
+  end
 end
 
