@@ -31,8 +31,9 @@ action :install do
 	  action :create
 	end
 	
-	install_pkgs_on_start.each do |file|
-		file_name = File.basename(file)
+	install_pkgs_on_start.each_with_index do |file,index|
+		# prepending index, since aem installs packages in alphabet order 
+		file_name = index + '_' + File.basename(file)
 
    	remote_file "#{install_dir}/#{file_name}" do
       source "#{package_store_url}/#{file}"
