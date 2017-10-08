@@ -21,6 +21,9 @@
 # really want to use this for production, you should add some real error
 # checking on the output of the curl commands.
 
+# Gem for parsing xml
+require 'nori'
+
 def set_vars
   # Set up vars with AEM package manager urls, etc.
   vars = {}
@@ -52,7 +55,12 @@ def set_vars
                        " POST http://localhost:#{vars[:port]}/crx/packmgr/" \
                        "service/.json/etc/packages/#{vars[:group_id]}/" \
                        "#{vars[:file_name]}?cmd=uninstall"
+  
+  vars[:list_packages] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} "\
+                         " http://localhost:#{vars[:port]}/crx/packmgr/service.jsp?cmd=ls"
 
+  vars[:active_bundles_cmd] = "curl -s -S -u #{vars[:user]}:#{vars[:password]} "\
+                              "http://localhost:#{vars[:port]}/system/console/bundles/.json"                      
   vars
 end
 
@@ -96,7 +104,6 @@ action :upload do
     upload.run_command
     upload.error!
     log upload.stdout
-
   end
 end
 
@@ -137,6 +144,8 @@ action :install do
   if ::File.exist?(version_file)
     current_version = ::File.readlines(version_file).last.chomp
   end
+  log "CURRENT PACKAGE VERSION: #{current_version}"
+  log "NEW PACKAGE VERSION: #{new_resource.version}"
   # Need to uninstall the current version - AEM just overlays a new install
   if (current_version != new_resource.version) || new_resource.update
     old = "#{new_resource.name}-#{current_version}#{new_resource.file_extension}"
@@ -189,4 +198,169 @@ action :uninstall do
   uninstall.run_command
   uninstall.error!
   log uninstall.stdout
+end
+
+action :upload_and_install_if_missing do 
+  @vars = set_vars
+  Chef::Log.warn "Check package status #{@vars[:name]}"
+
+  actions = case package_status?
+  when :none 
+    [:upload, install_type]
+  when :uploaded
+    [install_type]
+  else
+    nil
+  end
+
+  #If got something to do 
+  if actions 
+    actions.each do |method|
+      eval(method.to_s + '_pkg')
+      sleep 5
+    end
+  else
+    Chef::Log.warn "Nothing to do. "
+  end
+end
+
+private 
+
+# Uploads package 
+def upload_pkg 
+  path = @vars[:file_path]
+  url = @vars[:download_url]
+  
+  Chef::Log.warn "Downloading Package: '#{@vars[:download_url]}'"
+  unless ::File.exist?(path)
+    r = remote_file path do
+      source url
+      mode 0755
+      action :nothing
+    end
+    r.run_action(:create)
+  end
+
+  Chef::Log.warn "Uploading Package with command #{@vars[:upload_cmd]}"
+
+  upload = Mixlib::ShellOut.new(@vars[:upload_cmd])
+  Chef::Log.warn "Uploading AEM package with command: #{@vars[:upload_cmd]}"
+  upload.run_command
+  upload.error!
+  log upload.stdout
+end
+
+# Installs package 
+def install_pkg
+  install = Mixlib::ShellOut.new(@vars[:install_cmd])
+  Chef::Log.warn "Installing AEM package #{@vars[:file_name]} with command: #{@vars[:install_cmd]}"
+  install.run_command
+  install.error!
+  log install.stdout
+end
+
+# Install pkg and wait until restart is done 
+def install_with_restart_pkg
+  old_pid = aem_pid 
+  Chef::Log.warn "OLD_PID: #{old_pid}"
+  install_pkg
+
+  try = 0 
+  retries = 2 
+  delay = 60 
+
+  # Wait for pid to change + port is listened + all bundles active
+  while try < retries do 
+    Chef::Log.warn "Attempt #{try+1} Waiting #{delay} and checking restart status"
+    sleep delay
+   
+    new_pid = aem_pid
+    Chef::Log.warn "NEW PID #{aem_pid}"
+
+    return true if new_pid && new_pid != old_pid && aem_port && aem_all_bundles_active?
+    try+=1
+  end
+end
+
+# Check package status
+# Status is one of [:none, :uploaded, :installed]
+def package_status?
+  package = find_package
+
+  # If found 
+  if package 
+    Chef::Log.warn("Package found #{package}")
+    Chef::Log.warn("Package #{@vars[:file_name]} is uploaded")
+    if package['lastUnpacked'].empty?
+      Chef::Log.warn("Package #{@vars[:file_name]} is not installed")
+      :uploaded
+    else 
+      Chef::Log.warn("Package #{@vars[:file_name]} was installed #{package['lastUnpacked']}")
+      :installed 
+    end
+  else 
+    Chef::Log.warn("Package #{@vars[:file_name]} is not uploaded")
+    :none
+  end
+end
+
+# Finds package via API 
+def find_package
+  list = Mixlib::ShellOut.new(@vars[:list_packages])
+  parser = Nori.new(:parser => :rexml, :delete_namespace_attributes => true)
+  list.run_command
+  list.error!
+  package_hash = parser.parse(list.stdout)
+  packages = package_hash['crx']['response']['data']['packages']['package']
+
+  # Find package in list 
+  package = packages.find do |pkg|
+    pkg['name'] == new_resource.name.downcase && \
+    pkg['group'] == @vars[:group_id] && \
+    pkg['version'] == new_resource.version
+  end
+end
+
+def install_type 
+  if new_resource.expect_restart
+    :install_with_restart
+  else
+    :install
+  end
+end
+
+# Returns aem pid if exists otherwise nil 
+def aem_pid 
+  get_pid = Mixlib::ShellOut.new("ps aux | grep aem | grep java | grep crx | awk '{print $2}'")
+  get_pid.run_command
+  get_pid.error!
+  pid = get_pid.stdout.split("\n").first
+ 
+  return pid unless get_pid.stdout.empty?
+  nil
+end
+
+# Returns true if aem port is listened otherwise nil 
+def aem_port 
+  get_pid = Mixlib::ShellOut.new("netstat -tpln | grep java | grep #{@vars[:port]}")
+  get_pid.run_command
+  get_pid.error!
+  # Chef::Log.error("get_pid.stdout  #{get_pid.stdout} get_pid.stderr  #{get_pid.stderr}")  
+
+  return get_pid.stdout unless get_pid.stdout.empty?
+  nil
+end
+
+# Returns true if all bundles active otherwise false 
+def aem_all_bundles_active?
+  bundles = Mixlib::ShellOut.new(@vars[:active_bundles_cmd])
+  bundles.run_command
+  
+  if !bundles.error? && !bundles.stdout.empty?
+    return true if JSON.parse(bundles.stdout)['status'] =~ /all \d+ bundles active./
+  else
+    return false 
+  end
+
+  false
 end

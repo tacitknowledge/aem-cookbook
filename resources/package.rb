@@ -18,7 +18,7 @@
 
 # This resource manages AEM packages
 
-actions :upload, :install, :activate, :uninstall, :delete
+actions :upload, :install, :activate, :uninstall, :delete, :upload_and_install_if_missing
 
 attribute :name, kind_of: String, name_attribute: true, required: true
 attribute :aem_instance, kind_of: String, required: true
@@ -34,3 +34,4 @@ attribute :group_id, kind_of: String, default: nil
 attribute :recursive, kind_of: [TrueClass, FalseClass], default: false
 attribute :properties_file, kind_of: String, default: nil
 attribute :version_pattern, kind_of: String, default: nil
+attribute :expect_restart, kind_of: [TrueClass, FalseClass], default: false

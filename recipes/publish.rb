@@ -157,6 +157,7 @@ node[:aem][:publish][:deploy_pkgs].each do |pkg|
     port node[:aem][:publish][:port]
     group_id pkg[:group_id]
     recursive pkg[:recursive]
+    expect_restart pkg[:expect_restart]
     properties_file pkg[:properties_file]
     version_pattern pkg[:version_pattern]
     action pkg[:action]
