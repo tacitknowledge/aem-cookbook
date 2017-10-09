@@ -266,8 +266,16 @@ def install_with_restart_pkg
   install_pkg
 
   try = 0 
-  retries = 2 
+  retries = 10
   delay = 60 
+  
+  # Execute restart on compile stage 
+  service "aem-#{new_resource.aem_instance}" do
+    # init script returns 0 for status no matter what
+    status_command "service aem-#{new_resource.aem_instance} status | grep running"
+    supports status: true, stop: true, start: true, restart: true
+    action :nothing
+  end.run_action(:restart)
 
   # Wait for pid to change + port is listened + all bundles active
   while try < retries do 
@@ -277,7 +285,7 @@ def install_with_restart_pkg
     new_pid = aem_pid
     Chef::Log.warn "NEW PID #{aem_pid}"
 
-    return true if new_pid && new_pid != old_pid && aem_port && aem_all_bundles_active?
+    return true if new_pid && new_pid != old_pid && aem_port_open && aem_all_bundles_active?
     try+=1
   end
 end
@@ -341,7 +349,7 @@ def aem_pid
 end
 
 # Returns true if aem port is listened otherwise nil 
-def aem_port 
+def aem_port_open 
   get_pid = Mixlib::ShellOut.new("netstat -tpln | grep java | grep #{@vars[:port]}")
   get_pid.run_command
   get_pid.error!
