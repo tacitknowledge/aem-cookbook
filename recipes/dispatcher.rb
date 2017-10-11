@@ -33,7 +33,6 @@ aem_dispatcher 'mod_dispatcher.so' do
   action :install
 end
 
-
 directory "#{node[:apache][:dir]}/conf" do
   owner 'root'
   group node[:apache][:root_group]

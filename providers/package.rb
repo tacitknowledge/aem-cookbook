@@ -241,10 +241,9 @@ def upload_pkg
     r.run_action(:create)
   end
 
-  Chef::Log.warn "Uploading Package with command #{@vars[:upload_cmd]}"
 
   upload = Mixlib::ShellOut.new(@vars[:upload_cmd])
-  Chef::Log.warn "Uploading AEM package with command: #{@vars[:upload_cmd]}"
+  Chef::Log.warn "Uploading package with command: #{@vars[:upload_cmd]}"
   upload.run_command
   upload.error!
   log upload.stdout
