@@ -71,7 +71,7 @@ else
     system true
     shell '/bin/bash'
     home '/home/crx'
-    supports manage_home: true
+    manage_home true
     action :create
   end
 end
