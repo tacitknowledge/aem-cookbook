@@ -25,7 +25,6 @@ action :add do
   local_user = new_resource.local_user
   local_password = new_resource.local_password
   local_port = new_resource.local_port
-  hosts = new_resource.remote_hosts
   role = new_resource.cluster_role
   cluster_name = new_resource.cluster_name
   type = new_resource.type

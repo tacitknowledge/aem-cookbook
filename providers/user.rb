@@ -18,7 +18,12 @@
 
 # This provider changes a users password for an AEM instance
 
-require 'erb'
+begin
+  require 'erb'
+  require 'rest-client'
+rescue LoadError =>e
+  Chef::Log.error "Install #{e.path} gem please"
+end
 
 def set_vars
   user = new_resource.user
@@ -34,7 +39,7 @@ def set_vars
 end
 
 def http_get(url, user, password)
-  res = RestClient::Resource.new(url, user, password)
+  res = ::RestClient::Resource.new(url, user, password)
   res.get
 end
 
