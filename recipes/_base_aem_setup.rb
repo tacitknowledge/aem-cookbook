@@ -66,13 +66,24 @@ if node[:aem][:use_yum]
     action :install
   end
 else
-  user 'crx' do
-    comment 'crx/aem role user'
-    system true
-    shell '/bin/bash'
-    home '/home/crx'
-    manage_home true
-    action :create
+  if Chef::VERSION.to_f >= 13
+    user 'crx' do
+      comment 'crx/aem role user'
+      system true
+      shell '/bin/bash'
+      home '/home/crx'
+      manage_home true
+      action :create
+    end
+  else
+    user 'crx' do
+      comment 'crx/aem role user'
+      system true
+      shell '/bin/bash'
+      home '/home/crx'
+      supports manage_home: true
+      action :create
+    end
   end
 end
 
