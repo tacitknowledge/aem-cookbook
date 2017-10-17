@@ -33,6 +33,10 @@ package 'gcc' do
   action :nothing
 end.run_action(:install)
 
+package 'make' do
+  action :nothing
+end.run_action(:install)
+
 chef_gem 'curb' do
   compile_time false if Chef::Resource::ChefGem.method_defined?(:compile_time)
   action :nothing
