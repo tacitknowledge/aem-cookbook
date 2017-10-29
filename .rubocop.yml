@@ -12,7 +12,7 @@ Documentation:
   Enabled: false
 Encoding:
   Enabled: false
-Style/FileName:
+Naming/FileName:
   Enabled: false
 LineLength:
   Enabled: false
@@ -22,9 +22,7 @@ Metrics/AbcSize:
   Enabled: false
 PerceivedComplexity:
   Enabled: false
-SingleSpaceBeforeFirstArg:
+Layout/SpaceBeforeFirstArg:
   Enabled: false
 Style/ClassAndModuleChildren:
-  Enabled: false
-Style/FileName:
   Enabled: false

@@ -167,7 +167,6 @@ aem_replicator 'create_replication_agents_for_publish_servers' do
   remote_hosts node[:aem][:author][:replication_hosts]
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
   cluster_name node[:aem][:cluster_name]
-  cluster_role node[:aem][:publish][:cluster_role]
   aem_version node[:aem][:version]
   type :agent
   action :add
@@ -181,7 +180,6 @@ aem_replicator 'replicate_to_publish_servers' do
   remote_hosts node[:aem][:author][:replication_hosts]
   dynamic_cluster node[:aem][:author][:find_replication_hosts_dynamically]
   cluster_name node[:aem][:cluster_name]
-  cluster_role node[:aem][:publish][:cluster_role]
   aem_version node[:aem][:version]
   type :publish
   action :add

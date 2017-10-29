@@ -78,6 +78,7 @@ action :add do
     end
   end
 
+  Chef::Log.error "vars: #{vars}"
   template "#{vars[:farm_dir]}/farm_#{farm_name}.any" do
     cookbook 'aem'
     source 'farm.any.erb'

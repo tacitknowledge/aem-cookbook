@@ -71,13 +71,13 @@ action :install do
         group 'root'
         cookbook dispatcher_file_cookbook
         action :create
-        notifies :restart, service_name
+        notifies :restart, service_name, :delayed
       end
     end
 
     link "#{apache_libexecdir}/mod_dispatcher.so" do
       to local_file_path
-      notifies :restart, service_name
+      notifies :restart, service_name, :delayed
     end
   end
 end
