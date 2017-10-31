@@ -51,43 +51,28 @@ action :add do
     agent = aem_instance = :publish
   end
 
-  if new_resource.dynamic_cluster
-    log 'Finding replication hosts dynamically...'
-    hosts = []
-    search_criteria = AEM::Helpers.build_cluster_search_criteria(role, cluster_name)
-    search(:node, search_criteria) do |n|
-      log "Found host: #{n[:fqdn]}"
-      hosts << {
-        ipaddress: n[:ipaddress],
-        port: n[:aem][aem_instance][:port],
-        user: n[:aem][aem_instance][:admin_user],
-        password: n[:aem][aem_instance][:admin_password],
-        name: n[:fqdn]
-      }
-    end
-    hosts.sort! { |a, b| a[:name] <=> b[:name] }
-  end
-
-  counter = 0
-  hosts.each do |h|
+  hosts.each_with_index do |h, counter|
     instance = counter > 0 ? counter.to_s : ''
-
-    if h[:agent_id].nil?
-      log "No agent id found, don't populate the userId value for the replication agent"
-      agent_id_param = ''
+    # Convergency for agent creation
+    if agent_exist?(agent, instance, h, local_user, local_password, local_port  )
+      Chef::Log.error("Agent exists. Skipping...")
     else
-      log "Agent id found #{h[:agent_id]}, populate the userId value for the replication agent with it"
-      agent_id_param = "-F \"jcr:content/userId=#{h[:agent_id]}\""
+      if h[:agent_id].nil?
+        log "No agent id found, don't populate the userId value for the replication agent"
+        agent_id_param = ''
+      else
+        log "Agent id found #{h[:agent_id]}, populate the userId value for the replication agent with it"
+        agent_id_param = "-F \"jcr:content/userId=#{h[:agent_id]}\""
+      end
+
+      aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:add], aem_version)
+      cmd = ERB.new(aem_command).result(binding)
+
+      log "Adding replication agent with command: #{cmd}"
+      runner = Mixlib::ShellOut.new(cmd)
+      runner.run_command
+      runner.error!
     end
-
-    aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:add], aem_version)
-    cmd = ERB.new(aem_command).result(binding)
-
-    log "Adding replication agent with command: #{cmd}"
-    runner = Mixlib::ShellOut.new(cmd)
-    runner.run_command
-    runner.error!
-    counter += 1
   end
 end
 
@@ -122,49 +107,6 @@ action :remove do
     agent = 'author'
   end
 
-  if new_resource.dynamic_cluster
-    log 'Finding replication hosts dynamically...'
-    hosts = []
-    search_criteria = AEM::Helpers.build_cluster_search_criteria(role, cluster_name)
-    search(:node, search_criteria) do |n|
-      log "Found host: #{n[:fqdn]}"
-      hosts << {
-        ipaddress: n[:ipaddress],
-        port: n[:aem][aem_instance][:port],
-        user: n[:aem][aem_instance][:admin_user],
-        password: n[:aem][aem_instance][:admin_password],
-        name: n[:fqdn]
-      }
-    end
-    hosts.sort! { |a, b| a[:name] <=> b[:name] }
-
-    if type == :agent || type == :flush_agent
-      aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:list], aem_version)
-      cmd = ERB.new(aem_command).result(binding)
-
-      log "Creating list of agents wth command: #{cmd}"
-      runner = Mixlib::ShellOut.new(cmd)
-      runner.run_command
-      runner.error!
-
-      list = JSON.parse(runner.stdout)
-      all_agents = []
-      list["agents.#{agent}"].keys.each do |key|
-        all_agents << key unless key =~ /jcr/
-      end
-
-      counter = 0
-      agents = []
-      hosts.each do |h|
-        instance = counter > 0 ? counter.to_s : ''
-        agents << "#{agent}#{instance}"
-        counter += 1
-      end
-
-      hosts = all_agents - agents
-    end
-  end
-
   counter = 0
   hosts.each do |h|
     instance = counter > 0 ? counter.to_s : ''
@@ -178,4 +120,46 @@ action :remove do
     runner.error!
     counter += 1
   end
+end
+
+private
+# Convergency for agent creation
+def agent_exist?(agent, index, host, user, password, port)
+  # Set commands per agent type
+  case agent
+  when 'flush'
+    instance_type = 'publish'
+    ip_regex = /Replication test to http:\/\/([a-zA-Z0-9\.\-]+)\/dispatcher\/invalidate.cache/
+  when :publish
+    instance_type = 'author'
+    ip_regex = /Replication test to http:\/\/([a-zA-Z0-9\.\-]+):4503\/bin\/receive\?sling:authRequestLogin=1/
+  end
+  # Compose command
+  # TODO: rewrite using command_finder
+  command = "curl -u #{user}:#{password} -X GET http://localhost:#{port}/etc/replication/agents.#{instance_type}/#{agent.to_s}#{index}.test.html"
+
+  # Run command
+  runner = Mixlib::ShellOut.new(command)
+  runner.run_command
+
+  # If no errors and stdout recieved
+  if !runner.error? && !runner.stdout.empty? && !runner.stdout.nil?
+    # Extract ip check agent status from stdout
+    ip_match = runner.stdout.match(ip_regex)
+    ip = ip_match ? ip_match[1] : nil
+    status = runner.stdout[/Replication test <strong>succeeded<\/strong>/]
+
+    # If status success and ip detected
+    if status && ip
+      compare_ips(ip, host[:ipaddress])
+    end
+  else
+    Chef::Log.error(" Command '#{command}'; runner.error?: '#{runner.error?}'; runner.stdout: '#{runner.stdout}'")
+  end
+end
+
+# Compare if ip addresses are equal
+def compare_ips(detected, requested)
+  Chef::Log.warn(" Detected ip '#{detected}'; Requested ip:'#{requested}'")
+  detected == requested
 end

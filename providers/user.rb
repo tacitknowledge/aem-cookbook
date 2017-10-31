@@ -20,7 +20,6 @@
 
 begin
   require 'erb'
-  require 'rest-client'
 rescue LoadError =>e
   Chef::Log.error "Install #{e.path} gem please"
 end
@@ -39,6 +38,13 @@ def set_vars
 end
 
 def http_get(url, user, password)
+  # Requering here to avoid error on dispatcher
+  begin
+    require 'rest-client'
+  rescue LoadError =>e
+    Chef::Log.error "Install #{e.path} gem please"
+  end
+
   res = ::RestClient::Resource.new(url, user, password)
   res.get
 end

@@ -17,31 +17,30 @@
 # limitations under the License.
 
 action :install do
-	# Use fallback attributes if property isn't passed 
-	base_dir = new_resource.base_dir || node[:aem][:base_dir]
-	install_pkgs_on_start = new_resource.install_pkgs_on_start || node[:aem][:install_pkgs_on_start]
-	package_store_url = new_resource.package_store_url || node[:aem][:package_store_url]
+  # Use fallback attributes if property isn't passed
+  base_dir = new_resource.base_dir || node[:aem][:base_dir]
+  install_pkgs_on_start = new_resource.install_pkgs_on_start || node[:aem][:install_pkgs_on_start]
+  package_store_url = new_resource.package_store_url || node[:aem][:package_store_url]
 
 	install_dir = base_dir + '/install'
 
-	directory install_dir do
-	  owner 'crx'
-	  group 'crx'
-	  mode '0755'
-	  action :create
-	end
-	
-	install_pkgs_on_start.each_with_index do |file,index|
-		# prepending index, since aem installs packages in alphabet order 
-		file_name = index.to_s + '_' + ::File.basename(file)
+  directory install_dir do
+    owner 'crx'
+    group 'crx'
+    mode '0755'
+    action :create
+  end
 
-   	remote_file "#{install_dir}/#{file_name}" do
+  install_pkgs_on_start.each_with_index do |file, index|
+    # prepending index, since aem installs packages in alphabet order
+    file_name = index.to_s + '_' + ::File.basename(file)
+
+    remote_file "#{install_dir}/#{file_name}" do
       source "#{package_store_url}/#{file}"
       owner 'crx'
       group 'crx'
-      mode "0644"
+      mode '0644'
       action :create_if_missing
     end
   end
 end
-
