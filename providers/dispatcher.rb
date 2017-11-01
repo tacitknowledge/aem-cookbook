@@ -15,6 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+use_inline_resources
 
 action :install do
   dispatcher_mod_name = new_resource.dispatcher_mod_name
@@ -34,7 +35,6 @@ action :install do
   else
     dispatcher_file_path = "dispatcher-#{webserver_type}-#{dispatcher_version}.so"
     local_file_path = "#{apache_libexecdir}/#{dispatcher_file_path}"
-    service_name = 'service[apache2]'
 
     unless dispatcher_uri.nil?
       require 'uri'
@@ -50,7 +50,6 @@ action :install do
           owner 'root'
           group 'root'
           action :create
-          notifies :restart, service_name, :delayed
         end
       else
         # extract out the module.so
@@ -71,13 +70,11 @@ action :install do
         group 'root'
         cookbook dispatcher_file_cookbook
         action :create
-        notifies :restart, service_name, :delayed
       end
     end
 
     link "#{apache_libexecdir}/mod_dispatcher.so" do
       to local_file_path
-      notifies :restart, service_name, :delayed
     end
   end
 end

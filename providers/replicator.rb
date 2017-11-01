@@ -54,7 +54,7 @@ action :add do
   hosts.each_with_index do |h, counter|
     instance = counter > 0 ? counter.to_s : ''
     # Convergency for agent creation
-    if agent_exist?(agent, instance, h, local_user, local_password, local_port  )
+    if agent_exist?(agent, instance, h, local_user, local_password, local_port)
       Chef::Log.error("Agent exists. Skipping...")
     else
       if h[:agent_id].nil?
@@ -137,24 +137,24 @@ def agent_exist?(agent, index, host, user, password, port)
   # Compose command
   # TODO: rewrite using command_finder
   command = "curl -u #{user}:#{password} -X GET http://localhost:#{port}/etc/replication/agents.#{instance_type}/#{agent.to_s}#{index}.test.html"
-
+  Chef::Log.warn "Running command '#{command}'"
   # Run command
   runner = Mixlib::ShellOut.new(command)
   runner.run_command
 
   # If no errors and stdout recieved
-  if !runner.error? && !runner.stdout.empty? && !runner.stdout.nil?
+  if runner.error? || runner.stdout.empty? || runner.stdout.nil?
+    Chef::Log.error(" Command '#{command}'; runner.error?: '#{runner.error?}'; runner.stdout: '#{runner.stdout}'")
+    false
+  else
     # Extract ip check agent status from stdout
     ip_match = runner.stdout.match(ip_regex)
     ip = ip_match ? ip_match[1] : nil
-    status = runner.stdout[/Replication test <strong>succeeded<\/strong>/]
+    # status = runner.stdout[/Replication test <strong>succeeded<\/strong>/]
 
+    Chef::Log.warn "Agent detected ip: '#{ip}'"
     # If status success and ip detected
-    if status && ip
-      compare_ips(ip, host[:ipaddress])
-    end
-  else
-    Chef::Log.error(" Command '#{command}'; runner.error?: '#{runner.error?}'; runner.stdout: '#{runner.stdout}'")
+    compare_ips(ip, host[:ipaddress]) if ip
   end
 end
 
