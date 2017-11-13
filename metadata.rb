@@ -16,5 +16,7 @@ depends 'apache2'
 depends 'ark', '~> 0.8.2'
 depends 'iptables'
 depends 'java', '1.50.0'
+depends 's3_file'
+
 
 gem 'nori', '2.6.0'

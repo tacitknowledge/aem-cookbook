@@ -35,12 +35,28 @@ action :install do
     # prepending index, since aem installs packages in alphabet order
     file_name = index.to_s + '_' + ::File.basename(file)
 
-    remote_file "#{install_dir}/#{file_name}" do
-      source "#{package_store_url}/#{file}"
-      owner 'crx'
-      group 'crx'
-      mode '0644'
-      action :create_if_missing
+    # remote_file "#{install_dir}/#{file_name}" do
+    #   source "#{package_store_url}/#{file}"
+    #   owner 'crx'
+    #   group 'crx'
+    #   mode '0644'
+    #   action :create_if_missing
+    # end
+
+    unless ::File.exist?("#{install_dir}/#{file_name}")
+      s3_file "#{install_dir}/#{file_name}" do
+        remote_path "/#{file}"
+        bucket "horizon.aem"
+        s3_url node[:aem][:package_store_url]
+        aws_access_key_id "AKIAJRFQ6HHOMBYQOI4Q"
+        aws_secret_access_key "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"
+        owner 'crx'
+        group 'crx'
+        mode "0755"
+        action :create
+      end
+    else
+      Chef::Log.error("File exists: '#{install_dir}/#{file_name}'!. Skipping download... ")
     end
   end
 end

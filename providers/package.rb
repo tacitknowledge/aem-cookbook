@@ -28,10 +28,13 @@ def set_vars
   # Set up vars with AEM package manager urls, etc.
   vars = {}
   vars[:recursive] = new_resource.recursive ? '\\&recursive=true' : ''
-  vars[:file_name] = "#{new_resource.name}-#{new_resource.version}" \
-                     "#{new_resource.file_extension}"
+  vars[:file_name] = if new_resource.version && !new_resource.version.empty?
+                      new_resource.name + '-' + new_resource.version + new_resource.file_extension
+                    else
+                      new_resource.name + new_resource.file_extension
+                    end
   vars[:download_url] = new_resource.package_url
-  vars[:file_path] = "#{Chef::Config[:file_cache_path]}/#{vars[:file_name]}"
+  vars[:file_path] = "#{Chef::Config[:file_cache_path]}/#{::File.basename(vars[:download_url])}"
   vars[:user] = new_resource.user
   vars[:password] = new_resource.password
   vars[:port] = new_resource.port
@@ -228,18 +231,34 @@ private
 
 # Uploads package
 def upload_pkg
-  path = @vars[:file_path]
-  url = @vars[:download_url]
+  path = Chef::Config[:file_cache_path] + '/' + ::File.basename(@vars[:download_url])
+  url = 'https://s3-eu-central-1.amazonaws.com/horizon.aem/' + @vars[:download_url]
+  name = @vars[:file_name]
+  s3_key = "/#{@vars[:download_url]}"
 
   Chef::Log.warn "Downloading Package: '#{@vars[:download_url]}'"
+  # unless ::File.exist?(path)
+  #   r = remote_file path do
+  #     source url
+  #     mode 0755
+  #     action :nothing
+  #   end
+  #   r.run_action(:create)
+  # end
+Chef::Log.error "Downloading file: #{url}"
   unless ::File.exist?(path)
-    r = remote_file path do
-      source url
-      mode 0755
+    r = s3_file path do
+      remote_path s3_key
+      bucket "horizon.aem"
+      s3_url 'https://s3-eu-central-1.amazonaws.com/horizon.aem'
+      aws_access_key_id "AKIAJRFQ6HHOMBYQOI4Q"
+      aws_secret_access_key "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"
+      mode "0755"
       action :nothing
     end
     r.run_action(:create)
   end
+Chef::Log.warn "File downloaded: #{name}"
 
   upload = Mixlib::ShellOut.new(@vars[:upload_cmd])
   Chef::Log.warn "Uploading package with command: #{@vars[:upload_cmd]}"
@@ -264,16 +283,16 @@ def install_with_restart_pkg
   install_pkg
 
   try = 0
-  retries = 10
+  retries = 20
   delay = 60
 
   # Execute restart on compile stage
-  service "aem-#{new_resource.aem_instance}" do
-    # init script returns 0 for status no matter what
-    status_command "service aem-#{new_resource.aem_instance} status | grep running"
-    supports status: true, stop: true, start: true, restart: true
-    action :nothing
-  end.run_action(:restart)
+  # service "aem-#{new_resource.aem_instance}" do
+  #   # init script returns 0 for status no matter what
+  #   status_command "service aem-#{new_resource.aem_instance} status | grep running"
+  #   supports status: true, stop: true, start: true, restart: true
+  #   action :nothing
+  # end.run_action(:restart)
 
   # Wait for pid to change + port is listened + all bundles active
   while try < retries do
@@ -281,9 +300,9 @@ def install_with_restart_pkg
     sleep delay
 
     new_pid = aem_pid
-    Chef::Log.warn "NEW PID #{aem_pid}"
+    Chef::Log.warn "NEW PID '#{new_pid}', aem_port_open: '#{aem_port_open}', aem_all_bundles_active?: '#{aem_all_bundles_active?}'"
 
-    return true if new_pid && new_pid != old_pid && aem_port_open && aem_all_bundles_active?
+    return true if new_pid && aem_port_open && aem_all_bundles_active?
     try+=1
   end
 end
@@ -292,7 +311,7 @@ end
 # Status is one of [:none, :uploaded, :installed]
 def package_status?
   package = find_package
-
+  Chef::Log.warn("Detected package: #{package}")
   # If found
   if package
     Chef::Log.warn("Package found #{package}")
@@ -323,7 +342,7 @@ def find_package
   package = packages.find do |pkg|
     pkg['name'] == new_resource.name.downcase && \
     pkg['group'] == @vars[:group_id] && \
-    pkg['version'] == new_resource.version
+    pkg['version'].to_s == new_resource.version.to_s
   end
 end
 
@@ -348,12 +367,12 @@ end
 
 # Returns true if aem port is listened otherwise nil
 def aem_port_open
-  get_pid = Mixlib::ShellOut.new("netstat -tpln | grep java | grep #{@vars[:port]}")
+  get_pid = Mixlib::ShellOut.new("sudo netstat -tpln | grep java | grep #{@vars[:port]}")
   get_pid.run_command
-  get_pid.error!
+  # get_pid.error!
   # Chef::Log.error("get_pid.stdout  #{get_pid.stdout} get_pid.stderr  #{get_pid.stderr}")
 
-  return get_pid.stdout unless get_pid.stdout.empty?
+  return get_pid.stdout if !get_pid.error? && !get_pid.stdout.empty?
   nil
 end
 
