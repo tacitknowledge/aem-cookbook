@@ -48,8 +48,8 @@ action :install do
         remote_path "/#{file}"
         bucket "horizon.aem"
         s3_url node[:aem][:package_store_url]
-        aws_access_key_id "AKIAJRFQ6HHOMBYQOI4Q"
-        aws_secret_access_key "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"
+        aws_access_key_id node[:horizongo][:aws_access_key_id]
+        aws_secret_access_key node[:horizongo][:aws_secret_access_key]
         owner 'crx'
         group 'crx'
         mode "0755"

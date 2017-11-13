@@ -251,8 +251,8 @@ Chef::Log.error "Downloading file: #{url}"
       remote_path s3_key
       bucket "horizon.aem"
       s3_url 'https://s3-eu-central-1.amazonaws.com/horizon.aem'
-      aws_access_key_id "AKIAJRFQ6HHOMBYQOI4Q"
-      aws_secret_access_key "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"
+      aws_access_key_id node[:horizongo][:aws_access_key_id]
+      aws_secret_access_key node[:horizongo][:aws_secret_access_key]
       mode "0755"
       action :nothing
     end
