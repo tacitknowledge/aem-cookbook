@@ -283,8 +283,8 @@ def install_with_restart_pkg
   install_pkg
 
   try = 0
-  retries = 20
-  delay = 60
+  retries = 60
+  delay = 20
 
   # Execute restart on compile stage
   # service "aem-#{new_resource.aem_instance}" do

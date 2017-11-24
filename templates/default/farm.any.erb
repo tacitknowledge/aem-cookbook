@@ -44,8 +44,8 @@
       <% @cache_rules.keys.sort.each do |rule_number| %>
         /<%= rule_number %>
           {
-            /glob "<%= @cache_rules[rule_number][:glob] %>"
-            /type "<%= @cache_rules[rule_number][:type] %>"
+            /glob "<%= @cache_rules[rule_number]['glob'] %>"
+            /type "<%= @cache_rules[rule_number]['type'] %>"
           }
       <% end %>
       }
@@ -54,8 +54,8 @@
       <% @invalidation_rules.keys.sort.each do |rule_number| %>
         /<%= rule_number %>
           {
-            /glob "<%= @invalidation_rules[rule_number][:glob] %>"
-            /type "<%= @invalidation_rules[rule_number][:type] %>"
+            /glob "<%= @invalidation_rules[rule_number]['glob'] %>"
+            /type "<%= @invalidation_rules[rule_number]['type'] %>"
           }
       <% end %>
       }
@@ -64,8 +64,8 @@
       <% @allowed_clients.keys.sort.each do |rule_number| %>
         /<%= rule_number %>
           {
-            /glob "<%= @allowed_clients[rule_number][:glob] %>"
-            /type "<%= @allowed_clients[rule_number][:type] %>"
+            /glob "<%= @allowed_clients[rule_number]['glob'] %>"
+            /type "<%= @allowed_clients[rule_number]['type'] %>"
           }
       <% end %>
       }
@@ -74,8 +74,8 @@
       <% @ignore_url_params.keys.sort.each do |rule_number| %>
         /<%= rule_number %>
           {
-            /glob "<%= @ignore_url_params[rule_number][:glob] %>"
-            /type "<%= @ignore_url_params[rule_number][:type] %>"
+            /glob "<%= @ignore_url_params[rule_number]['glob'] %>"
+            /type "<%= @ignore_url_params[rule_number]['type'] %>"
           }
       <% end %>
       }
@@ -83,7 +83,7 @@
       {
         <% node[:aem][:dispatcher][:headers].each do |head| %>
         "<%= head %>"
-        <% end %> 
+        <% end %>
       }
     }
   /statistics
@@ -93,7 +93,7 @@
       <% @statistics.each do |category| %>
         /<%= category[:name] %>
           {
-            /glob "<%= category[:glob] %>"
+            /glob "<%= category['glob'] %>"
           }
       <% end %>
         }
