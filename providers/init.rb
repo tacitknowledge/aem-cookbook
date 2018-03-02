@@ -34,6 +34,6 @@ action :add do
     source 'init.erb'
     mode '0755'
     variables(vars)
-    notifies :restart, resources(service: "#{service_name}")
+    # notifies :restart, resources(service: "#{service_name}")
   end
 end

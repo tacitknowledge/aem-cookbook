@@ -25,6 +25,9 @@ DEFAULT_CQ_CONTEXT=<%= @default_context %>
 
 CQ_RUNNABLE_JAR=<%= @runnable_jar %>
 
+STOP_TIMEOUT=300
+FORCE=n
+
 #---------------------------------------------------------------------
 # Don't edit below here
 #---------------------------------------------------------------------
@@ -74,6 +77,11 @@ Other options
     --help, -h         show this help
     --max-files        sets the ulimit for max open files before executing the jvm.
                        default is 8192
+
+Stop/Restart options
+    --force, -f        stop will be done using SIGKILL. If specified - timeout option wont work.
+    --timeout, -t      sets stop timeout in secconds. Default 300. If timeout reached but
+                       aem not stopped - SIGKILL will be used.
 @@
 }
 
@@ -122,6 +130,8 @@ initDefaults() {
     export NOFORK_OPT
     QUICKSTART_OPTS="${QUICKSTART_OPTS:-$NOFORK_OPT}"
     export QUICKSTART_OPTS
+    export STOP_TIMEOUT
+    export FORCE
 }
 
 # echo to stderr and to the log file
@@ -254,6 +264,12 @@ findRunnableJar() {
 initDefaults
 while [ -n "$1" ]; do
     case "$1" in
+    	'--force' | '-f')
+            FORCE=y
+	        ;;
+        '--timeout' | '-t')
+            STOP_TIMEOUT=$2
+            shift;;
         '--context')
             CQ_CONTEXT=$2
             shift;;
@@ -545,8 +561,13 @@ server=y,suspend=${CQ_JVM_DEBUG_SUSPENDED}"
         exit 0;
     fi
 
-    printf "stopping..."
-    $KILL $cqpid; status=$?
+    if [ "$FORCE" = y ]; then
+      printf "FORCE SIGKILL stopping..."
+      $KILL -9 $cqpid; status=$?
+    else
+      printf "stopping..."
+      $KILL $cqpid; status=$?
+    fi
 
     if [ $status -eq 1 ]; then
         echo "Unable to kill process $cqpid"
@@ -555,15 +576,14 @@ server=y,suspend=${CQ_JVM_DEBUG_SUSPENDED}"
 
     COUNTER=0
     # AEM6 takes a very long time to stop after the first run. Subsequent stops are usually much quicker.
-    TIMEOUT_SECONDS=300
-    while ps -p $cqpid > /dev/null 2>&1 && [ $COUNTER -lt ${TIMEOUT_SECONDS} ]; do
+    while ps -p $cqpid > /dev/null 2>&1 && [ $COUNTER -lt ${STOP_TIMEOUT} ]; do
         printf "."
-        COUNTER=`expr $COUNTER + 1`
+        COUNTER=`expr $COUNTER + 2`
         sleep 2
     done
     if ps -p $cqpid > /dev/null 2>&1; then
-        echo "Process $cqpid still running, unable to stop"
-        exit 20
+        echo "Process $cqpid still running, Using 'kill -9'"
+        $KILL -9 $cqpid; status=$?
     else
         echo "stopped."
         rm -f "$CQ_LOGDIR/cq.pid"
@@ -571,7 +591,13 @@ server=y,suspend=${CQ_JVM_DEBUG_SUSPENDED}"
   ;;
 #---------------------------------------------------------------------
   'restart')
-    "$0" stop
+    arguments=" -t $STOP_TIMEOUT"
+
+    if [ "$FORCE" = y ]; then
+     arguments="$arguments -f"
+    fi
+
+    "$0" stop $arguments
     "$0" start
   ;;
 #---------------------------------------------------------------------
