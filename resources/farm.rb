@@ -38,3 +38,5 @@ attribute :cluster_name, kind_of: String, default: nil
 attribute :cluster_role, kind_of: String, default: nil
 attribute :cluster_type, kind_of: String, default: nil
 attribute :render_timeout, kind_of: Integer, default: 0
+attribute :farm_template_cookbook, kind_of: String, default: nil
+attribute :farm_template_source, kind_of: String, default: nil
