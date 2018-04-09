@@ -78,8 +78,8 @@ action :add do
   end
 
   template "#{vars[:farm_dir]}/farm_#{farm_name}.any" do
-    cookbook new_resource.farm_template_cookbook || 'aem'
-    source new_resource.farm_template_source || 'farm.any.erb'
+    cookbook new_resource.farm_template_cookbook
+    source new_resource.farm_template_source
     group node[:apache][:root_group]
     mode '0664'
     variables(vars)
