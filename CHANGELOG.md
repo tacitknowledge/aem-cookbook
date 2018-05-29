@@ -1,3 +1,11 @@
+#2.3.1
+* Enhancement/Fix
+  * Added ability to override the curb gem version as the latest no longer works, if fixed in the future we can override this to nil in the wrapper cookbook
+
+#2.3.0
+* Enhancements
+  * Added ability to override farm_any template
+
 #2.2.0
 * Enhancements
   * Add new group provider.

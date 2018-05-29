@@ -270,3 +270,5 @@ default[:aem][:dispatcher][:mod_dispatcher_url] = nil
 default[:aem][:dispatcher][:mod_dispatcher_checksum] = nil
 default[:aem][:dispatcher][:deflate_enabled] = true
 default[:aem][:dispatcher][:header] = []
+
+default[:aem][:curb_version] = '0.9.4' #default this to nil in your wrapper for the latest
