@@ -21,6 +21,9 @@ CQ_JVM_OPTS="<%= (@jvm_opts.keys.sort.map {|k| k if @jvm_opts[k]}).compact.join 
 
 CQ_JAR_OPTS="<%= @jar_opts.join " " %>"
 
+<% mode = node[:fqdn] =~ /publish/ ? 'publish' : 'author' %>
+DEFAULT_RUN_MODES="-r <%=mode%>,nosamplecontent"
+
 DEFAULT_CQ_CONTEXT=<%= @default_context %>
 
 CQ_RUNNABLE_JAR=<%= @runnable_jar %>
@@ -464,6 +467,19 @@ server=y,suspend=${CQ_JVM_DEBUG_SUSPENDED}"
          export JITC_COMPILEOPT
          ;;
     esac
+
+    # assemble program arguments
+    runmodes_file="${BASEDIR}/runmodes"
+
+    #Check FILE exists and read permission is granted
+    if [ -r $runmodes_file ]; then
+        custom_runmodes="`cat $runmodes_file`"
+        cqOpts="$cqOpts $DEFAULT_RUN_MODES,$custom_runmodes"
+        echo "$runmodes_file found. Using $cqOpts runmodes"
+    else
+        cqOpts="$cqOpts $DEFAULT_RUN_MODES"
+        echo "${BASEDIR}/runmodes not found! Using $cqOpts runmodes"
+    fi
 
     # assemble program arguments
 	if [ -n "$CQ_JAR_OPTS" ]; then
