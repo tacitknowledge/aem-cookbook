@@ -21,7 +21,7 @@ CQ_JVM_OPTS="<%= (@jvm_opts.keys.sort.map {|k| k if @jvm_opts[k]}).compact.join 
 
 CQ_JAR_OPTS="<%= @jar_opts.join " " %>"
 
-<% mode = node[:fqdn] =~ /publish/ ? 'publish' : 'author' %>
+<% mode = @runnable_jar =~ /publish/ ? 'publish' : 'author' %>
 DEFAULT_RUN_MODES="-r <%=mode%>,nosamplecontent"
 
 DEFAULT_CQ_CONTEXT=<%= @default_context %>
