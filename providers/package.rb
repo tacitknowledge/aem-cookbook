@@ -311,12 +311,10 @@ end
 # Status is one of [:none, :uploaded, :installed]
 def package_status?
   package = find_package
-  Chef::Log.warn("Detected package: #{package}")
-  # If found
   if package
     Chef::Log.warn("Package found #{package}")
     Chef::Log.warn("Package #{@vars[:file_name]} is uploaded")
-    if package['lastUnpacked'].empty?
+    if package['lastUnpacked'].nil? || package['lastUnpacked'].empty?
       Chef::Log.warn("Package #{@vars[:file_name]} is not installed")
       :uploaded
     else
