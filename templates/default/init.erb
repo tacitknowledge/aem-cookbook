@@ -423,7 +423,7 @@ case "$CQ_COMMAND" in
     if [ -n "$CQ_PID" ]; then
         if ps -p $CQ_PID > /dev/null; then
             err "process $CQ_PID already running. please stop and try again."
-            exit 4
+            exit 0
         else
             warn "pid file $CQ_LOGDIR/cq.pid present, but process not running. "\
                  "maybe unclean shutdown ?"
