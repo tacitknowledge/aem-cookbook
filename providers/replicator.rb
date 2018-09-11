@@ -149,8 +149,12 @@ action :remove do
       runner.run_command
       runner.error!
 
-      list = JSON.parse(runner.stdout)
+      node_hash = JSON.parse(runner.stdout)
+      list = {}
       all_agents = []
+      # AEM 6.4 makes the agents.xxx not children of replication, so a little hackery
+      aem_version >= '6.4' ? list["agents.#{agent}"] = node_hash : list = node_hash
+
       list["agents.#{agent}"].keys.each do |key|
         all_agents << key unless key =~ /jcr/
       end
