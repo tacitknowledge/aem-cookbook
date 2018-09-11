@@ -76,7 +76,7 @@ default[:aem][:commands] = {
       },
       list: {
         '5.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.infinity.json',
-        '6.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.agents.<%=agent%>.infinity.json'
+        '6.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=agent%>.infinity.json'
       }
     }
   },
