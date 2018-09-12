@@ -75,7 +75,8 @@ default[:aem][:commands] = {
         '5.4' => 'curl -u <%=local_user%>:<%=local_password%> -X DELETE http://localhost:<%=local_port%>/etc/replication/agents.<%=server%>/<%=h%>'
       },
       list: {
-        '5.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.infinity.json'
+        '5.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication.infinity.json',
+        '6.4' => 'curl -u <%=local_user%>:<%=local_password%> http://localhost:<%=local_port%>/etc/replication/agents.<%=agent%>.infinity.json'
       }
     }
   },
