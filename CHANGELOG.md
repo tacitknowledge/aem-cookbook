@@ -1,3 +1,7 @@
+#2.4.0
+* Enhancement
+  * Added command for AEM 6.4 for listing replication agents
+
 #2.3.1
 * Enhancement/Fix
   * Added ability to override the curb gem version as the latest no longer works, if fixed in the future we can override this to nil in the wrapper cookbook
