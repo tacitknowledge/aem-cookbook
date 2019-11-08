@@ -57,6 +57,17 @@ class AEM
 
         matching_command
       end
+
+      def add_replicator_params(current_command, replicator_params)
+        if !replicator_params.empty?
+          replicator_params.each do |param|
+            current_command = current_command + ' ' + param
+          end
+        end
+
+        current_command
+      end
+
     end
   end
 end

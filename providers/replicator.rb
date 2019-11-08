@@ -78,10 +78,18 @@ action :add do
       agent_id_param = ''
     else
       log "Agent id found #{h[:agent_id]}, populate the userId value for the replication agent with it"
-      agent_id_param = "-F \"jcr:content/userId=#{h[:agent_id]}\""
+      agent_id_param = "-F \"userId=#{h[:agent_id]}\""
     end
 
     aem_command = AEM::Helpers.retrieve_command_for_version(node[:aem][:commands][:replicators][type][:add], aem_version)
+    aem_command = AEM::Helpers.add_replicator_params(aem_command, replicator_params)
+
+    # add agent_id_param to aem_command
+    case type
+    when :flush
+      aem_command = aem_command + ' ' + agent_id_param
+    end
+
     cmd = ERB.new(aem_command).result(binding)
 
     log "Adding replication agent with command: #{cmd}"
