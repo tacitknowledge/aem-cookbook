@@ -18,29 +18,26 @@
 
 include_recipe 'aem::_base_aem_setup'
 
-unless node[:aem][:use_yum]
-  aem_jar_installer 'publish' do
-    download_url node[:aem][:download_url]
-    default_context node[:aem][:publish][:default_context]
-    port node[:aem][:publish][:port]
-    action :install
-  end
+aem_jar_installer 'publish' do
+  download_url node[:aem][:download_url]
+  default_context node[:aem][:publish][:default_context]
+  port node[:aem][:publish][:port]
+  action :install
+  not_if { node[:aem][:use_yum] }
 end
 
-unless node[:aem][:license_url].nil?
-  remote_file "#{node[:aem][:publish][:default_context]}/license.properties" do
-    source "#{node[:aem][:license_url]}"
-    sensitive true
-    mode 0644
-  end
+remote_file "#{node[:aem][:publish][:default_context]}/license.properties" do
+  source "#{node[:aem][:license_url]}"
+  sensitive true
+  mode 0644
+  only_if { node[:aem][:license_url] }
 end
 
-unless node[:aem][:license_customer_name].nil? && node[:aem][:license_download_id].nil?
-  template "#{node[:aem][:publish][:default_context]}/license.properties" do
-    source 'license.properties.erb'
-    sensitive true
-    mode 0644
-  end
+template "#{node[:aem][:publish][:default_context]}/license.properties" do
+  source 'license.properties.erb'
+  sensitive true
+  mode 0644
+  only_if { node[:aem][:license_customer_name] && node[:aem][:license_download_id] }
 end
 
 if node[:aem][:version].to_f > 5.4
@@ -83,7 +80,7 @@ else
   end
 end
 
-unless node[:aem][:publish][:new_admin_password].nil?
+if node[:aem][:publish][:new_admin_password]
   # Change admin password
   aem_user node[:aem][:publish][:admin_user] do
     password node[:aem][:publish][:new_admin_password]
