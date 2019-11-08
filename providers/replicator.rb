@@ -161,7 +161,7 @@ action :remove do
 
       counter = 0
       agents = []
-      hosts.each do |h|
+      hosts.each do |_h|
         instance = counter > 0 ? counter.to_s : ''
         agents << "#{agent}#{instance}"
         counter += 1
